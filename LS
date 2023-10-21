@@ -1,0 +1,1034 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/RateLimiterUpgradeable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
+
+interface IYieldHub {
+    function addNewToken(address newToken, uint256 start, uint256 end, uint256 rate) external;
+    function burn(address account, uint256 amount) external;
+    function getUnlockTime(address account) external view returns (uint256);
+    function getReward(address account) external;
+    function getTokenReward(address account, address token) external;
+    function getTotalClaimable(address account, address token) external view returns (uint256);
+    function lock(address account, uint256 amount, uint256 lockPeriod) external;
+    function unlock(address account, uint256 amount) external;
+    function updateReward(address account, uint256 newRewardAmount) external;
+}
+
+interface IERC20 {
+    function name() external view returns (string memory);
+    function symbol() external view returns (string memory);
+    function decimals() external view returns (uint8);
+}
+
+contract LuckyStakes is Initializable, AccessControlEnumerableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, RateLimiterUpgradeable {
+    using SafeMath for uint256;
+
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant STAKER_ROLE = keccak256("STAKER_ROLE");
+    bytes32 public constant REWARDS_ADMIN_ROLE = keccak256("REWARDS_ADMIN_ROLE");
+
+    IERC721Upgradeable public nftContract;
+    IERC20Upgradeable public pnutToken;
+    IERC20 public stablecoin; // for fees and collateral
+    IERC20 public rewardToken; // Token to be distributed as rewards.
+
+
+    // User specific mappings
+    mapping(uint256 => uint256) public nftStakedTime;
+    mapping(uint256 => uint256) public nftRewards;
+    mapping(address => bool) public whitelistedAddresses;
+    mapping(uint256 => uint256) public nftRarityMultiplier;
+    mapping(address => uint256) public lastRewardClaimed;
+    mapping(address => uint256) public userStakedNFTCount;
+    mapping(address => uint256) public totalRewardsReceived;
+    mapping(address => uint256) public userActivityScore;
+    mapping(address => bool) public isTokenInYieldHub;
+    mapping(address => uint256) public userRewards;
+    mapping(address => uint256) public userLastActive;
+    mapping(address => mapping(uint256 => bool)) public hasVoted;
+    mapping(address => SwapProposal) public swapProposals;
+    mapping(uint256 => Lease) public nftLeases;
+    mapping(uint256 => mapping(address => UserPoolInfo)) public userInfo;
+    mapping(address => ReferralData) public referralData;
+    mapping(address => uint256) public rewards;
+    mapping(address => address) public referrers;
+    mapping(address => uint256) public feeBalances;
+    mapping(address => uint256) public userDiscounts;
+    mapping(address => Notification[]) public userNotifications;
+    mapping(address => bool) public isSupportedCollateral;
+    mapping(uint256 => PoolInfo) public poolInfo;
+    mapping(address => uint256) public lockedRewards;
+    mapping(address => uint256) public vestingSchedules;
+    
+    uint256 public rewardRatePerSecond; 
+    uint256 public earlyUnstakePenaltyRate;
+    uint256 public minimumStakeTime;
+    uint256 public ownershipTransferTimestamp;
+    uint256 public totalRewardsInPool;
+    uint256 public rewardRate = INITIAL_REWARD_RATE;  // Set an initial reward rate.
+    uint256 public lastHalvingBlock = block.number;
+    uint256 public blocksTillNextHalving = 2102400;  // Roughly a year with 15 sec block time.
+    uint256 public halvingFactor = 2;  // Halves the reward. You can change this if you want a different reduction rate.
+    uint256 public proposalExpiryDuration = 1 weeks;  // Default to one week; can be adjusted as needed.
+    uint256 public maxLeaseDuration = 4 weeks;
+    uint256 public rewardsPerBlock;
+    uint256 public totalAllocPoint;
+    uint256 public constant REWARD_CAP = 10000;  
+    uint256 public minimumHoldingDuration = 30 days;
+    uint256 public baseRewardRate = 100;
+    uint256 public bonusMultiplier = 2;
+
+    address public yieldHubOwner;
+    address public pendingNewOwner;
+    address public lecProxyAddress;
+
+    // Events
+    event NFTStaked(address indexed user, uint256 indexed tokenId);
+    event NFTUnstaked(address indexed user, uint256 indexed tokenId);
+    event RewardsClaimed(address indexed user, uint256 amount);
+    event AddressWhitelisted(address indexed user);
+    event AddressBlacklisted(address indexed user);
+    event ContractPaused(address indexed admin);
+    event ContractUnpaused(address indexed admin);
+    event BatchNFTStaked(address indexed user, uint256[] tokenIds);
+    event TokenAddedToYieldHub(address token);
+    event TokenRemovedFromYieldHub(address token);
+    event YieldHubOwnershipTransferInitiated(address indexed previousOwner, address indexed newOwner, uint256 timestamp);
+    event RewardsUpdated(address indexed user, uint256 newRewardAmount, address indexed executor, uint256 timestamp);
+    event YieldHubOwnershipTransferred(address indexed previousOwner, address indexed newOwner, uint256 timestamp);
+    event YieldHubOwnershipRenounced(address indexed previousOwner, uint256 timestamp);
+    event PNUTTokensIssued(address indexed to, uint256 amount, address indexed executor, uint256 timestamp);
+    event PNUTTokensBurned(address indexed from, uint256 amount, address indexed executor, uint256 timestamp);
+    event PNUTTokensTransferred(address indexed from, address indexed to, uint256 amount, address indexed executor, uint256 timestamp);
+    event LECProxyAddressUpdated(address indexed oldLECProxyAddress, address indexed newLECProxyAddress);
+    event RarityMultiplierSet(uint256 indexed tokenId, uint256 multiplier);
+    event TokensLocked(address indexed user, uint256 amount, uint256 timestamp);
+    event TokensBurned(uint256 amount, uint256 timestamp);
+    event UserUpdated(address indexed user, uint256 timestamp);
+    event RewardDistributed(address indexed user, uint256 amount);
+    event UpgradeAuthorized(address indexed newImplementation);
+    event RewardPoolReplenished(address indexed replenisher, uint256 amount);
+    event RewardHalved(uint256 newRewardRate);
+    event ProposalCreated(uint256 proposalId, string description);
+    event Voted(uint256 proposalId, address voter, bool voteFor);
+    event ProposalPassed(uint256 proposalId);
+    event ProposalFailed(uint256 proposalId);
+    event RewardVested(address indexed user, uint256 amount);
+    event RewardClaimed(address indexed user, uint256 amount);
+    event SwapProposed(address indexed proposer, address indexed proposedTo, uint256 tokenIdOffered, uint256 tokenIdDesired);
+    event SwapExecuted(address indexed proposer, address indexed acceptor, uint256 tokenIdOffered, uint256 tokenIdAccepted);
+    event SwapDeclined(address indexed decliner, address indexed proposer);
+    event ProposalExpiryDurationUpdated(uint256 newDuration);
+    event NFTLeased(address indexed leaser, address indexed lessee, uint256 tokenId, uint256 duration, uint256 fee);
+    event NFTReturned(address indexed leaser, address indexed lessee, uint256 indexed tokenId);
+    event NFTReclaimed(address indexed leaser, address indexed lessee, uint256 indexed tokenId);
+    event LeaseFeeAdjusted(address indexed owner, uint256 indexed tokenId, uint256 newFee);
+    event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
+    event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
+    event Referred(address indexed referee, address indexed referrer);
+    event RewardClaimed(address indexed user, uint256 amount);
+    event FeeUpdated(uint256 registrationFee, uint256 transactionFee, uint256 premiumTransactionFee);
+    event FeeWithdrawn(address indexed admin, uint256 amount);
+
+
+struct Notification {
+    uint timestamp;
+    string message;
+    bool isRead;
+}
+
+    struct Proposal {
+    string description;
+    uint256 forVotes;
+    uint256 againstVotes;
+    bool executed;
+    uint256 endTimestamp;
+    }
+
+    Proposal[] public proposals;
+
+    struct VestingSchedule {
+    uint256 start;
+    uint256 cliff;
+    uint256 duration;
+    uint256 amount;
+    uint256 claimed;
+    bool revocable;
+
+    }
+
+    struct SwapProposal {
+    address proposer;
+    uint256 tokenIdProposed;
+    uint256 tokenIdRequested;
+    bool isActive;
+    uint256 timestamp; 
+}
+
+struct Lease {
+        address leaser;
+        address lessee;
+        uint256 startTime;
+        uint256 duration;
+        uint256 collateral;
+        uint256 fee;
+        bool isActive;
+    }
+
+struct UserPoolInfo {
+    uint256 amount;     // How many tokens the user has provided.
+    uint256 rewardDebt; // Reward debt.
+}
+
+struct PoolInfo {
+    IERC20 token;           // Address of token contract.
+    uint256 allocPoint;     // How many allocation points assigned to this pool. Rewards to distribute per block.
+    uint256 lastRewardBlock; // Last block number that Rewards distribution occurred.
+    uint256 accRewardPerShare; // Accumulated Rewards per share, times 1e12.
+}
+
+PoolInfo[] public poolInfo; 
+
+// Structure to track additional referral data for each user.
+struct ReferralData {
+    uint256 totalReferrals;   // Total number of users referred.
+    uint256 referralDepth;    // Depth of referral chain.
+    uint256 lastActive;       // Timestamp of the user's last activity.
+}
+
+enum FeeType {
+    Registration,
+    Transaction,
+    PremiumTransaction
+}
+
+struct Fees {
+    uint256 registrationFee;
+    uint256 transactionFee;
+    uint256 premiumTransactionFee;
+}
+
+Fees public fees;
+
+struct DynamicFee {
+    uint256 baseFee;
+    uint256 peakMultiplier;   // Multiplier during peak demand. e.g., 2 would mean double the fee during peak times.
+    bool isPeak;              // Flag to denote peak times.
+}
+
+DynamicFee public dynamicFees;
+
+     constructor(address _rewardToken, address _stablecoin, address _nftContract) {
+        rewardToken = IERC20(_rewardToken);
+        stablecoin = IERC20(_stablecoin);
+        nftContract = IERC721Upgradeable(_nftContract);
+        _setupRole(ADMIN_ROLE, msg.sender);
+
+    }
+
+
+    function initialize(address _nftContract, address _pnutToken) external initializer {
+        __AccessControlEnumerable_init();
+        __ReentrancyGuard_init();
+        __Pausable_init();
+        __RateLimiter_init();
+
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(ADMIN_ROLE, msg.sender);
+        _setupRole(REWARDS_ADMIN_ROLE, msg.sender);
+
+        nftContract = IERC721Upgradeable(_nftContract);
+        pnutToken = IERC20Upgradeable(_pnutToken);
+    }
+
+    modifier onlyAdmin() {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Not an admin");
+        _;
+    }
+
+    modifier onlyWhitelisted() {
+        require(whitelistedAddresses[msg.sender], "Not whitelisted");
+        _;
+    }
+
+    function whitelistAddress(address user) external onlyRole(ADMIN_ROLE) {
+        whitelistedAddresses[user] = true;
+        emit AddressWhitelisted(user);
+    }
+
+    function blacklistAddress(address user) external onlyRole(ADMIN_ROLE) {
+        whitelistedAddresses[user] = false;
+        emit AddressBlacklisted(user);
+    }
+
+    function pauseContract() external onlyRole(ADMIN_ROLE) {
+        _pause();
+        emit ContractPaused(msg.sender);
+    }
+
+    function unpauseContract() external onlyRole(ADMIN_ROLE) {
+        _unpause();
+        emit ContractUnpaused(msg.sender);
+    }
+
+    function adjustRewardParameters(uint256 _newRewardRate, uint256 _newEarlyUnstakePenaltyRate, uint256 _newMinimumStakeTime) 
+        external 
+        onlyRole(ADMIN_ROLE) 
+        notRateLimited(msg.sender)  
+    {
+        rewardRatePerSecond = _newRewardRate;
+        earlyUnstakePenaltyRate = _newEarlyUnstakePenaltyRate;
+        minimumStakeTime = _newMinimumStakeTime;
+        _resetRateLimiter(msg.sender);
+    }
+
+    function stakeNFT(uint256 tokenId) external nonReentrant whenNotPaused onlyWhitelisted {
+        require(nftContract.ownerOf(tokenId) == msg.sender, "Not the NFT owner");
+        
+        // Claim any outstanding rewards before staking
+        _claimRewards(msg.sender);
+
+        nftContract.transferFrom(msg.sender, address(this), tokenId);
+        nftStakedTime[tokenId] = block.timestamp;
+    
+        uint256 rarityMultiplier = getRarityMultiplier(tokenId);
+        userStakedNFTCount[msg.sender] = userStakedNFTCount[msg.sender] + rarityMultiplier;
+
+        emit NFTStaked(msg.sender, tokenId);
+    }
+
+    function stakeNFTReflection(uint256 tokenId) external nonReentrant whenNotPaused onlyWhitelisted {
+        require(nftContract.ownerOf(tokenId) == msg.sender, "Not the NFT owner");
+        lastRewardClaimed[msg.sender] = block.timestamp;
+        uint256 dailyReward = 10 * 10**18; 
+        pnutToken.transfer(msg.sender, dailyReward);
+    }
+
+    function unstakeNFT(uint256 tokenId) external nonReentrant whenNotPaused {
+        require(nftContract.ownerOf(tokenId) == address(this), "Contract not the NFT owner");
+
+        uint256 timeLeftForMinimum = (nftStakedTime[tokenId] + minimumStakeTime) - block.timestamp;
+        uint256 penalty = 0;
+        if(timeLeftForMinimum > 0) {
+            // The penalty is proportional to the remaining time for minimum stake.
+            penalty = (calculateRewards(tokenId) * earlyUnstakePenaltyRate * timeLeftForMinimum) / (100 * minimumStakeTime);
+        }
+        
+        uint256 reward = calculateRewards(tokenId) - penalty;
+        distributeRewards(msg.sender, reward);
+
+        nftContract.transferFrom(address(this), msg.sender, tokenId);
+        userStakedNFTCount[msg.sender] -= getRarityMultiplier(tokenId);
+
+        emit NFTUnstaked(msg.sender, tokenId);
+    }
+
+    function batchStakeNFTs(uint256[] memory tokenIds) external nonReentrant whenNotPaused {
+        require(tokenIds.length > 0, "Must stake at least one NFT");
+
+        uint256 totalMultiplier = 0;
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            require(checkStakeImpact(tokenIds[i]), "Staking Impact Check Failed");
+            totalMultiplier += getRarityMultiplier(tokenIds[i]);
+            stakeNFT(tokenIds[i]);
+        }
+
+        userStakedNFTCount[msg.sender] += totalMultiplier;
+
+        emit BatchNFTStaked(msg.sender, tokenIds);
+    }
+
+    // Function for a user to claim their rewards
+    function claimRewards() external nonReentrant {
+    // Ensure the user has staked NFTs
+    require(userStakedNFTCount[msg.sender] > 0, "No staked NFTs");
+    
+    // Calculate the accrued rewards for the user
+    uint256 reward = userStakedNFTCount[msg.sender] * (block.timestamp - lastClaimedTimestamp[msg.sender]) * rewardRatePerSecond;
+    
+    // Ensure the contract has enough tokens to distribute
+    require(pnutToken.balanceOf(address(this)) >= reward, "Insufficient rewards");
+
+    // Update the last claimed timestamp for the user
+    lastClaimedTimestamp[msg.sender] = block.timestamp;
+    
+    // Use the distributeRewards function to handle penalties, bonuses, locking, burning, etc.
+    distributeRewards(msg.sender, reward);
+
+    emit RewardsClaimed(msg.sender, reward);
+    }
+
+    function calculateRewards(uint256 tokenId) public view returns (uint256) {
+        uint256 timeStaked = block.timestamp - nftStakedTime[tokenId];
+        uint256 rarityMultiplier = getRarityMultiplier(tokenId);
+
+        return timeStaked * rewardRatePerSecond * rarityMultiplier;
+    }
+
+    function distributeRewards(address user, uint256 amount) internal {
+        require(pnutToken.balanceOf(address(this)) >= amount, "Insufficient rewards"); // Ensure contract has enough tokens
+
+        require(isEligibleForRewards(user), "User not eligible for rewards"); // Check eligibility
+        
+        uint256 penalty = calculatePenalty(user, amount); // Calculate penalty
+        amount = amount > penalty ? amount - penalty : 0; // Apply penalty
+        
+        uint256 bonus = calculateBonus(user, amount); // Calculate bonus
+        amount += bonus; // Apply bonus
+        
+        uint256 lockAmount = calculateLockAmount(user, amount); // Calculate locking amount
+        lock(user, lockAmount); // Lock portion of rewards
+        amount -= lockAmount; // Deduct locked amount
+        
+        uint256 burnAmount = calculateBurnAmount(user, amount); // Calculate burn amount
+        burn(burnAmount); // Burn portion of rewards
+        amount -= burnAmount; // Deduct burnt amount
+        
+        updateUserData(user, amount); // Update user data
+        
+        emit RewardDistributed(user, amount); // Emit event
+
+        pnutToken.transfer(user, amount); // Transfer final amount to user
+    }
+
+    function getRarityMultiplier(uint256 tokenId) public view returns (uint256) {
+        return nftRarityMultiplier[tokenId];
+    }
+
+     function checkStakeImpact(uint256 tokenId) public view returns (bool) {
+        // Assuming a simple check where if tokenId is even, it has a positive staking impact.
+        return tokenId % 2 == 0;
+    }
+
+    function calculateBonus(address user, uint256 amount) public view returns (uint256) {
+        // Assuming a simple bonus where if user has referred more than 5 people, they get a 10% bonus.
+        if (referralData[user].totalReferrals > 5) {
+            return amount * 10 / 100;
+        }
+        return 0;
+    }
+
+    function calculatePenalty(address user, uint256 amount) internal view returns (uint256) {
+        uint256 timeSinceLastClaim = block.timestamp - lastRewardClaimed[user];
+        
+        if(timeSinceLastClaim < 1 days) {
+            return amount * 20 / 100;  // 20% penalty if claimed within a day
+        } else if(timeSinceLastClaim < 3 days) {
+            return amount * 15 / 100;  // 15% penalty if claimed within three days
+        } else if(timeSinceLastClaim < 7 days) {
+            return amount * 10 / 100;  // 10% penalty if claimed within a week
+        }
+
+        return 0;
+    }
+
+    function calculateLockAmount(address user, uint256 amount) internal view returns (uint256) {
+        uint256 baseLock = 0;
+        
+        if(totalRewardsReceived[user] < 1000 * 10**18) {
+            baseLock = amount * 25 / 100;  // Base 25% lock for users with less than 1000 total rewards
+        }
+        
+        // Lock an additional 5% if user activity is below a threshold (e.g., 50).
+        if(userActivityScore[user] < 50) {
+            return baseLock + amount * 5 / 100;
+        }
+
+        return baseLock;
+    }
+
+    function calculateBurnAmount(address user, uint256 amount) internal view returns (uint256) {
+        uint256 burnAmount = 0;
+
+        if(userRewards[user] > 5000 * 10**18) {
+            burnAmount = amount * 5 / 100;  // Base 5% burn for users with more than 5000 rewards
+        }
+
+        // Burn an additional 2% if user activity is low
+        if(userActivityScore[user] < 40) {
+            burnAmount += amount * 2 / 100;
+        }
+
+        return burnAmount;
+    }
+
+    function lock(address user, uint256 amount) internal {
+        require(hasRole(REWARDS_ADMIN_ROLE, msg.sender), "Not authorized");
+        require(!isRateLimited(user), "Rate limited");
+        _resetRateLimiter(user);  // Reset the rate limiter for the user
+        
+        lockedRewards[user] += amount;
+        userActivityScore[user] = (userActivityScore[user] + 10 > 100) ? 100 : userActivityScore[user] + 10;
+
+        emit TokensLocked(user, amount, block.timestamp);
+    }
+
+    function burn(uint256 amount) internal {
+        require(hasRole(REWARDS_ADMIN_ROLE, msg.sender), "Not authorized");
+        pnutToken.burn(amount);  // Use the provided burn function
+
+        emit TokensBurned(amount, block.timestamp);
+    }
+
+    function updateUserData(address user, uint256 amount) internal {
+        require(hasRole(REWARDS_ADMIN_ROLE, msg.sender), "Not authorized");
+
+        lastRewardClaimed[user] = block.timestamp;
+        totalRewardsReceived[user] += amount;
+        userActivityScore[user] = (userActivityScore[user] - 5 < 0) ? 0 : userActivityScore[user] - 5;
+
+        emit UserUpdated(user, block.timestamp);
+    }
+
+
+    // Function to update the LEC Proxy Contract Address
+    function updateLECProxyContractAddress(address newLECProxyAddress) external onlyRole(ADMIN_ROLE) {
+    require(newLECProxyAddress != address(0), "Address cannot be the zero address");
+    lecProxyAddress = newLECProxyAddress;
+    emit LECProxyAddressUpdated(newLECProxyAddress);
+    }
+
+    // Sets a rarity multiplier for a specific NFT
+    function setRarityMultiplier(uint256 tokenId, uint256 multiplier) external onlyRole(ADMIN_ROLE) {
+    require(multiplier > 0, "Multiplier must be greater than 0");
+    
+    nftRarityMultiplier[tokenId] = multiplier;
+    
+    emit RarityMultiplierSet(tokenId, multiplier);
+    }
+
+    // Authorizes an upgrade of the contract
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(ADMIN_ROLE) {
+    require(newImplementation != address(0), "Cannot upgrade to invalid address");
+    
+    // Ensure the new implementation address is a contract.
+    uint32 size;
+    assembly {
+        size := extcodesize(newImplementation)
+    }
+    require(size > 0, "New implementation is not a contract");
+
+    super._authorizeUpgrade(newImplementation);
+
+    emit UpgradeAuthorized(newImplementation);
+    }
+
+    // Function to handle emergency withdrawal of NFTs
+    function emergencyUnstakeNFT(uint256 tokenId) external nonReentrant {
+    // Ensure the sender is the owner of the NFT
+    require(nftContract.ownerOf(tokenId) == msg.sender, "Not the NFT owner");
+
+    // Forfeit any unclaimed rewards for this NFT
+    nftRewards[tokenId] = 0;
+
+    // Update staking records
+    uint256 rarityMultiplier = getRarityMultiplier(tokenId);
+    userStakedNFTCount[msg.sender] = userStakedNFTCount[msg.sender] - rarityMultiplier;
+    nftStakedTime[tokenId] = 0;  // Reset the staking time
+
+    // Transfer the NFT back to the owner
+    nftContract.transferFrom(address(this), msg.sender, tokenId);
+
+    // Emit an event for transparency
+    emit NFTUnstaked(msg.sender, tokenId);
+    }
+
+    //Function to replenish the reward pool
+    function replenishRewardPool(uint256 amount) external onlyRole(ADMIN_ROLE) {
+    // Transfer tokens from the sender to this contract
+    require(pnutToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+
+    // Update the total rewards in the pool
+    totalRewardsInPool = totalRewardsInPool.add(amount);
+
+    // Emit an event for transparency
+    emit RewardPoolReplenished(msg.sender, amount);
+    }   
+
+    // function is called before every reward distribution to check and adjust the reward rate if necessary.
+function _maybeHalveReward() internal {
+    if (block.number >= lastHalvingBlock + blocksTillNextHalving) {
+        rewardRate /= halvingFactor;
+        lastHalvingBlock = block.number;
+        emit RewardHalved(rewardRate);
+    }
+}
+
+// View function to check blocks remaining till next halving.
+function blocksTillHalving() external view returns (uint256) {
+    if (block.number >= lastHalvingBlock + blocksTillNextHalving) {
+        return 0;
+    }
+    return lastHalvingBlock + blocksTillNextHalving - block.number;
+}
+
+ // Create a new proposal
+function createProposal(string memory description, uint256 duration) external onlyRole(ADMIN_ROLE) {
+    Proposal memory newProposal;
+    newProposal.description = description;
+    newProposal.endTimestamp = block.timestamp + duration;
+    proposals.push(newProposal);
+    emit ProposalCreated(proposals.length - 1, description);
+}
+
+    // Users vote on a proposal
+    function vote(uint256 proposalId, bool voteFor) external {
+    require(proposalId < proposals.length, "Invalid proposal ID");
+    require(block.timestamp < proposals[proposalId].endTimestamp, "Voting period has ended");
+    require(!hasVoted[msg.sender][proposalId], "You've already voted on this proposal");
+    
+    hasVoted[msg.sender][proposalId] = true;
+    
+    if (voteFor) {
+        proposals[proposalId].forVotes += 1;
+    } else {
+        proposals[proposalId].againstVotes += 1;
+    }
+    emit Voted(proposalId, msg.sender, voteFor);
+    }
+
+    // Tally the votes and finalize proposal
+    function finalizeProposal(uint256 proposalId) external {
+    require(proposalId < proposals.length, "Invalid proposal ID");
+    require(block.timestamp >= proposals[proposalId].endTimestamp, "Voting period has not ended");
+    require(!proposals[proposalId].executed, "Proposal already executed");
+    
+    if (proposals[proposalId].forVotes > proposals[proposalId].againstVotes) {
+        emit ProposalPassed(proposalId);
+    } else {
+        emit ProposalFailed(proposalId);
+    }
+    proposals[proposalId].executed = true;
+    }
+
+    // New: Function to handle reward vesting
+    function setVestingSchedule(
+    address user,
+    uint256 amount,
+    uint256 start,
+    uint256 cliffDuration,
+    uint256 vestingDuration,
+    bool revocable
+    ) external onlyRole(ADMIN_ROLE) {
+    require(vestingSchedules[user].amount == 0, "Vesting schedule already set");
+    
+    vestingSchedules[user] = VestingSchedule({
+        start: start,
+        cliff: start + cliffDuration,
+        duration: vestingDuration,
+        amount: amount,
+        claimed: 0,
+        revocable: revocable
+    });
+
+    require(rewardToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+    emit RewardVested(user, amount);
+    }
+
+    function claimVestedRewards() external {
+    VestingSchedule storage schedule = vestingSchedules[msg.sender];
+
+    require(schedule.amount > 0, "No vesting schedule found");
+    require(block.timestamp > schedule.cliff, "Cliff period not passed");
+    
+    uint256 elapsed = block.timestamp - schedule.start;
+    uint256 releasable = (elapsed * schedule.amount) / schedule.duration - schedule.claimed;
+
+    require(releasable > 0, "No releasable amount");
+
+    schedule.claimed += releasable;
+    require(rewardToken.transfer(msg.sender, releasable), "Transfer failed");
+    emit RewardClaimed(msg.sender, releasable);
+    }
+
+    function revokeVesting(address user) external onlyRole(ADMIN_ROLE) {
+    VestingSchedule storage schedule = vestingSchedules[user];
+    
+    require(schedule.revocable, "Vesting not revocable");
+    
+    uint256 unclaimed = schedule.amount - schedule.claimed;
+    delete vestingSchedules[user];
+    
+    require(rewardToken.transfer(msg.sender, unclaimed), "Transfer failed");
+}
+
+   // Function to handle reward claiming with NFT holding duration
+    function claimRewardsWithHoldingDuration(uint256 tokenId) external {
+    // Ensure the NFT is staked
+    require(nftStakedTimestamp[tokenId] != 0, "NFT is not staked");
+
+    // Calculate holding duration in seconds
+    uint256 holdingDurationInSeconds = block.timestamp - nftStakedTimestamp[tokenId];
+
+    // Ensure the NFT has been held for the minimum required duration
+    require(holdingDurationInSeconds >= minimumHoldingDuration, "NFT hasn't been held long enough to claim rewards");
+
+    // Calculate holding duration in days for reward calculation
+    uint256 holdingDurationInDays = holdingDurationInSeconds / 86400; // 86400 is the number of seconds in a day
+
+    // Calculate rewards
+    uint256 totalReward = baseRewardRate;
+    if (holdingDurationInDays > 1) {
+        totalReward += (holdingDurationInDays - 1) * (bonusMultiplier + baseRewardRate);
+    }
+
+    // Update user's accumulated rewards
+    userRewards[msg.sender] += totalReward;
+
+    // Reset staked timestamp for the NFT
+    nftStakedTimestamp[tokenId] = 0;
+
+    // Emitting an event might be useful for tracking
+    emit RewardsClaimed(msg.sender, tokenId, totalReward);
+    }
+
+
+    // New: Function to handle NFT swapping mechanism
+    function proposeSwap(uint256 myTokenId, uint256 desiredTokenId) external {
+    address desiredTokenOwner = nftContract.ownerOf(desiredTokenId);
+    
+    require(nftContract.ownerOf(myTokenId) == msg.sender, "You don't own the offered token");
+    require(!swapProposals[desiredTokenOwner].isActive, "An active proposal already exists for this token");
+
+    swapProposals[desiredTokenOwner] = SwapProposal({
+        proposer: msg.sender,
+        tokenIdProposed: myTokenId,
+        tokenIdRequested: desiredTokenId,
+        isActive: true,
+        timestamp: block.timestamp  // Added this line
+    });
+
+    emit SwapProposed(msg.sender, desiredTokenOwner, myTokenId, desiredTokenId);
+    }
+
+    function acceptSwap() external {
+    SwapProposal memory proposal = swapProposals[msg.sender];
+
+    require(proposal.isActive, "No active swap proposal found");
+    require(block.timestamp <= proposal.timestamp + proposalExpiryDuration, "Proposal has expired");  // Added this line
+    require(nftContract.ownerOf(proposal.tokenIdProposed) == proposal.proposer, "Proposer no longer owns the offered token");
+    require(nftContract.ownerOf(proposal.tokenIdRequested) == msg.sender, "You don't own the requested token");
+
+    nftContract.transferFrom(proposal.proposer, msg.sender, proposal.tokenIdProposed);
+    nftContract.transferFrom(msg.sender, proposal.proposer, proposal.tokenIdRequested);
+
+    swapProposals[msg.sender].isActive = false;
+
+    emit SwapExecuted(proposal.proposer, msg.sender, proposal.tokenIdProposed, proposal.tokenIdRequested);
+    }
+
+    function declineSwap() external {
+    require(swapProposals[msg.sender].isActive, "No active swap proposal found");
+    require(block.timestamp <= swapProposals[msg.sender].timestamp + proposalExpiryDuration, "Proposal has expired");  // Added this line
+
+    swapProposals[msg.sender].isActive = false;
+    emit SwapDeclined(msg.sender, swapProposals[msg.sender].proposer);
+    }
+
+    function setProposalExpiryDuration(uint256 _duration) external onlyRole(ADMIN_ROLE) {
+    proposalExpiryDuration = _duration;
+    emit ProposalExpiryDurationUpdated(_duration);
+    }
+
+    // Function to handle NFT leasing or lending mechanism
+    function leaseNFT(uint256 tokenId, address to, uint256 duration, uint256 fee, uint256 collateralAmount, address _collateralAddress) external {
+    require(nftContract.ownerOf(tokenId) == msg.sender, "You don't own the NFT");
+    require(!nftLeases[tokenId].isActive, "NFT is already leased");
+    require(duration <= maxLeaseDuration, "Lease duration exceeds the maximum limit");
+    require(isSupportedCollateral[_collateralAddress], "Collateral not supported");
+
+    // Transfer the NFT to the lessee temporarily
+    nftContract.transferFrom(msg.sender, to, tokenId);
+    
+    // Lessee pays the leasing fee and deposits collateral
+    require(stablecoin.transferFrom(to, msg.sender, fee), "Fee payment failed");
+    require(stablecoin.transferFrom(to, address(this), collateralAmount), "Collateral deposit failed");
+
+    nftLeases[tokenId] = Lease({
+        leaser: msg.sender,
+        lessee: to,
+        startTime: block.timestamp,
+        duration: duration,
+        fee: fee,
+        collateral: collateralAmount,
+        isActive: true
+    });
+
+    emit NFTLeased(msg.sender, to, tokenId, duration, fee, collateralAmount);
+    }
+
+
+
+    function returnLeasedNFT(uint256 tokenId) external {
+    Lease memory lease = nftLeases[tokenId];
+    
+    require(lease.isActive, "NFT is not leased");
+    require(lease.lessee == msg.sender, "You are not the lessee");
+    require(block.timestamp <= lease.startTime + lease.duration, "Lease duration expired");
+    
+    // Transfer the NFT back to the original owner
+    nftContract.transferFrom(msg.sender, lease.leaser, tokenId);
+
+    // Return the collateral to the lessee
+    require(stablecoin.transfer(msg.sender, lease.collateral), "Collateral return failed");
+
+    nftLeases[tokenId].isActive = false;
+
+    emit NFTReturned(lease.leaser, msg.sender, tokenId);
+    }
+
+
+
+    function reclaimExpiredLease(uint256 tokenId) external {
+    Lease memory lease = nftLeases[tokenId];
+    
+    require(lease.isActive, "NFT is not leased");
+    require(lease.leaser == msg.sender, "You are not the original owner");
+    require(block.timestamp > lease.startTime + lease.duration, "Lease duration not yet expired");
+    
+    // Transfer the NFT back to the original owner
+    nftContract.transferFrom(lease.lessee, msg.sender, tokenId);
+
+    nftLeases[tokenId].isActive = false;
+
+    emit NFTReclaimed(msg.sender, lease.lessee, tokenId);
+    }
+
+    function adjustLeaseFee(uint256 tokenId, uint256 newFee) external {
+    require(nftContract.ownerOf(tokenId) == msg.sender, "You don't own the NFT");
+    nftLeases[tokenId].fee = newFee;
+    emit LeaseFeeAdjusted(msg.sender, tokenId, newFee);
+    }
+
+    function addSupportedCollateral(address _collateral) external onlyRole(ADMIN_ROLE) {
+    isSupportedCollateral[_collateral] = true;
+    }
+
+    function removeSupportedCollateral(address _collateral) external onlyRole(ADMIN_ROLE) {
+    isSupportedCollateral[_collateral] = false;
+    }
+
+
+    // Function to handle community pools
+    function addPool(uint256 _allocPoint, IERC20 _token) external onlyRole(ADMIN_ROLE) {
+    updateAllPools();
+    totalAllocPoint = totalAllocPoint + _allocPoint;
+    poolInfo.push(PoolInfo({
+        token: _token,
+        allocPoint: _allocPoint,
+        lastRewardBlock: block.number,
+        accRewardPerShare: 0
+    }));
+    }
+
+    function deposit(uint256 _pid, uint256 _amount) external {
+    PoolInfo storage pool = poolInfo[_pid];
+    UserPoolInfo storage user = userInfo[_pid][msg.sender];
+    updatePool(_pid);
+    if (user.amount > 0) {
+        uint256 pending = user.amount * pool.accRewardPerShare / 1e12 - user.rewardDebt;
+        rewardToken.transfer(msg.sender, pending);
+    }
+    pool.token.transferFrom(msg.sender, address(this), _amount);
+    user.amount = user.amount + _amount;
+    user.rewardDebt = user.amount * pool.accRewardPerShare / 1e12;
+    emit Deposit(msg.sender, _pid, _amount);
+    }
+
+    function withdraw(uint256 _pid, uint256 _amount) external {
+    PoolInfo storage pool = poolInfo[_pid];
+    UserPoolInfo storage user = userInfo[_pid][msg.sender];
+    require(user.amount >= _amount, "Insufficient balance");
+    updatePool(_pid);
+    uint256 pending = user.amount * pool.accRewardPerShare / 1e12 - user.rewardDebt;
+    rewardToken.transfer(msg.sender, pending);
+    user.amount = user.amount - _amount;
+    user.rewardDebt = user.amount * pool.accRewardPerShare / 1e12;
+    pool.token.transfer(msg.sender, _amount);
+    emit Withdraw(msg.sender, _pid, _amount);
+    }
+
+    function updatePool(uint256 _pid) public {
+    PoolInfo storage pool = poolInfo[_pid];
+    if (block.number <= pool.lastRewardBlock) {
+        return;
+    }
+    uint256 tokenSupply = pool.token.balanceOf(address(this));
+    if (tokenSupply == 0) {
+        pool.lastRewardBlock = block.number;
+        return;
+    }
+    uint256 multiplier = block.number - pool.lastRewardBlock;
+    uint256 tokenReward = multiplier * rewardsPerBlock * pool.allocPoint / totalAllocPoint;
+    rewardToken.mint(address(this), tokenReward);
+    pool.accRewardPerShare = pool.accRewardPerShare + (tokenReward * 1e12 / tokenSupply);
+    pool.lastRewardBlock = block.number;
+    }
+
+    function updateAllPools() public {
+    uint256 length = poolInfo.length;
+    for (uint256 pid = 0; pid < length; ++pid) {
+        updatePool(pid);
+    }
+    }
+
+
+    // Function to handle referral program
+    function setReferrer(address referee) external {
+    require(referee != msg.sender, "Cannot refer yourself");
+    require(referrers[msg.sender] == address(0), "Referrer already set");
+    require(referralData[referee].lastActive + 30 days <= block.timestamp, "Referee not active long enough");
+
+    referrers[msg.sender] = referee;
+    referralData[referee].totalReferrals += 1;
+    
+    // Compute referral bonus based on depth and other conditions.
+    uint256 bonus = computeReferralBonus(referee);
+    rewards[referee] = (rewards[referee] + bonus > REWARD_CAP) ? REWARD_CAP : rewards[referee] + bonus;
+
+    emit Referred(referee, msg.sender);
+    }
+
+    function computeReferralBonus(address referee) internal view returns (uint256) {
+    uint256 baseBonus = referralBonus;
+    uint256 additionalBonus = (referralData[referee].totalReferrals / 5) * 10; // 10 tokens bonus for every 5 referrals
+    
+    return baseBonus + additionalBonus;
+    }
+
+    function claimReferralRewards() external {
+    uint256 reward = rewards[msg.sender];
+    require(reward > 0, "No rewards to claim");
+    
+    rewards[msg.sender] = 0; 
+    rewardToken.transfer(msg.sender, reward);
+
+    emit RewardClaimed(msg.sender, reward);
+    }
+
+
+    // Function to handle fee management
+    // Only ADMIN_ROLE should be able to update fees.
+    function updateFees(uint256 _registrationFee, uint256 _transactionFee, uint256 _premiumTransactionFee) external onlyRole(ADMIN_ROLE) {    fees.registrationFee = _registrationFee;
+    fees.transactionFee = _transactionFee;
+    fees.premiumTransactionFee = _premiumTransactionFee;
+    emit FeeUpdated(_registrationFee, _transactionFee, _premiumTransactionFee);
+    }
+
+    // Logic to collect fee for a specific actions, like registration, transactions and premium fee.
+    function collectFee(FeeType feeType) external payable {
+    uint256 requiredFee;
+
+    if(feeType == FeeType.Registration) {
+        requiredFee = fees.registrationFee;
+    } else if(feeType == FeeType.Transaction) {
+        requiredFee = fees.transactionFee;
+    } else if(feeType == FeeType.PremiumTransaction) {
+        requiredFee = fees.premiumTransactionFee;
+    } else {
+        revert("Invalid fee type");
+    }
+
+    require(msg.value == requiredFee, "Incorrect fee amount sent");
+    feeBalances[address(this)] += msg.value;
+}
+
+    // Withdraw accumulated fees.
+    function withdrawFees() external onlyRole(ADMIN_ROLE) {
+    uint256 feeAmount = feeBalances[address(this)];
+    require(feeAmount > 0, "No fees to withdraw");
+    
+    feeBalances[address(this)] = 0;
+    payable(msg.sender).transfer(feeAmount); // Transfer fees to caller.
+    emit FeeWithdrawn(msg.sender, feeAmount);
+    }
+
+    // Toggle between peak and non-peak times.
+    function togglePeak(bool _isPeak) external onlyRole(ADMIN_ROLE) {
+    dynamicFees.isPeak = _isPeak;
+    }
+
+    // Get the current fee considering dynamic adjustments.
+    function getCurrentFee() public view returns(uint256) {
+    if (dynamicFees.isPeak) {
+        return dynamicFees.baseFee * dynamicFees.peakMultiplier;
+    } else {
+        return dynamicFees.baseFee;
+    }
+    }
+
+    // Collect dynamic fee.
+    function collectDynamicFee() external payable {
+    uint256 currentFee = getCurrentFee();
+    uint256 discount = userDiscounts[msg.sender];
+    uint256 finalFee = currentFee - discount;  // Apply user-specific discount if any.
+
+    require(msg.value == finalFee, "Incorrect fee amount sent");
+    feeBalances[address(this)] += msg.value; // Accumulate fees in contract.
+    }
+
+    function setUserDiscount(address user, uint256 discountAmount) external onlyRole(ADMIN_ROLE) {
+    userDiscounts[user] = discountAmount;
+    }
+
+    function removeUserDiscount(address user) external onlyRole(ADMIN_ROLE) {
+    userDiscounts[user] = 0;
+        }
+
+
+IERC20 public token;
+
+    // Burn a percentage of the collected fees.
+    function burnFees(uint256 burnPercentage) external onlyRole(ADMIN_ROLE) {
+    uint256 burnAmount = feeBalances[address(this)] * burnPercentage / 100;
+    feeBalances[address(this)] -= burnAmount;
+    token.burn(burnAmount);
+    }
+
+    // Redistribute a percentage of the collected fees to a set of users.
+    function redistributeFees(address[] memory users, uint256 redistributionPercentage) external onlyRole(ADMIN_ROLE) {
+    uint256 totalRedistribution = feeBalances[address(this)] * redistributionPercentage / 100;
+    uint256 redistributionPerUser = totalRedistribution / users.length;
+    
+    for(uint256 i = 0; i < users.length; i++) {
+        token.transfer(users[i], redistributionPerUser);
+    }
+    
+    feeBalances[address(this)] -= totalRedistribution;
+    }
+
+    // Function to handle user notifications
+    function addNotification(address user, string memory message) internal {
+        Notification memory newNotification = Notification({
+            timestamp: block.timestamp,
+            message: message,
+            isRead: false
+        });
+        userNotifications[user].push(newNotification);
+    }
+
+    function markNotificationAsRead(uint index) external {
+        require(index < userNotifications[msg.sender].length, "Invalid index");
+        userNotifications[msg.sender][index].isRead = true;
+    }
+
+    function getUnreadNotificationsCount(address user) external view returns (uint count) {
+        count = 0;
+        uint256 length = userNotifications[user].length;
+        for(uint i = 0; i < length; i++) {
+            if(!userNotifications[user][i].isRead) {
+                count++;
+            }
+        }
+    }
+
+}

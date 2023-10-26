@@ -1,0 +1,2248 @@
+<div class="wrapper">
+	<div class="login">
+		<div class="login_left_combo_parent">
+			<div class="login_left_combo">
+				<a href="<?php echo $wo['config']['site_url'];?>" class="logo"><img src="<?php echo $wo['config']['theme_url'];?>/img/<?php echo getSunshineLogo() ?>logo.<?php echo $wo['config']['logo_extension'];?>" alt="Logo"> </a>
+				<h1><?php echo $wo['lang']['welcome_connect_friends']?></h1>
+				<p><?php echo $wo['lang']['welcome_share_new_text']?></p>
+            <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Colors for light mode */
+    :root {
+      --background-color: #ffffff;
+      --text-color: #000000;
+      --search-result-font-size: 10px; /* Adjust the font size as needed */
+    }
+
+    /* Colors for dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #000000;
+        --text-color: #ffffff;
+        --search-result-font-size: 10px; /* Adjust the font size as needed */
+      }
+    }
+
+    /* Main container */
+    .flex-container {
+      height: 100vh;
+      display: flex;
+      justify-content: flex-start; /* Align to the left */
+      align-items: center;
+      background-color: var(--background-color); /* Use the CSS variable for background color */
+    }
+
+    /* Box container */
+    .box-container {
+      position: absolute;
+      max-width: 400px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      left: 20px; /* Adjust the position to the left edge */
+      top: 60%;
+      transform: translate(0, -50%);
+      background-color: var(--background-color); /* Use the CSS variable for background color */
+      color: var(--text-color); /* Use the CSS variable for text color */
+    }
+
+    /* Additional styles */
+    .filter-container {
+      margin-bottom: 20px;
+    }
+
+    #project-list {
+      max-height: 200px;
+      overflow-y: scroll;
+      text-align: left;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    .project-item {
+      margin-bottom: 10px;
+      font-size: 10px; /* Use the CSS variable for font size */
+    }
+
+    .project-name {
+      font-weight: bold;
+    }
+
+    .project-network {
+      font-style: italic;
+    }
+
+    .filter-label {
+    font-size: 20px;
+    color: white;
+  }
+
+  .filter-input {
+    font-size: 14px;
+    color: white;
+  }
+
+    .message-container {
+      margin-top: 20px;
+    }
+
+    .message-text {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .google-form-button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+    }
+
+    @media (max-width: 480px) {
+      .box-container {
+        max-width: 100%; /* Adjust the maximum width for mobile view */
+        padding: 10px; /* Adjust the padding for mobile view */
+        left: 10px; /* Adjust the position to the left edge for mobile view */
+      }
+    }
+  </style>
+  <title>Allowlist Directory</title>
+</head>
+<body>
+  <div class="flex-container">
+    <div class="box-container">
+      <h1>Allowlist Directory</h1>
+      <div class="filter-container">
+        <label for="filter">Filter:</label>
+        <input type="text" id="filter" placeholder="Enter project name">
+      </div>
+      <div id="project-list"></div>
+      <div class="message-container">
+        <p class="message-text">Attention Project Owners, If You Would Like To Have Your Project Added To Our Allowlist, Fill Out The Google Form:</p>
+        <button class="google-form-button" onclick="openGoogleForm()">Google Form</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const allowlist = [
+         {
+        "name": "Bored Ape Yacht Club",
+        "network": "Ethereum mainnet",
+        "address": "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D"
+    },
+    {
+        "name": "CryptoPunks",
+        "network": "Ethereum mainnet",
+        "address": "0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb"
+    },
+    {
+        "name": "Mutant Ape Yacht Club",
+        "network": "Ethereum mainnet",
+        "address": "0x60e4d786628fea6478f785a6d7e704777c86a7c6"
+    },
+    {
+        "name": "Azuki",
+        "network": "Ethereum mainnet",
+        "address": "0xed5af388653567af2f388e6224dc7c4b3241c544"
+    },
+    {
+        "name": "CLONE X - X TAKASHI MURAKAMI",
+        "network": "Ethereum mainnet",
+        "address": "0x49cf6f5d44e70224e2e23fdcdd2c053f30ada28b"
+    },
+    {
+        "name": "Moonbirds",
+        "network": "Ethereum mainnet",
+        "address": "0x23581767a106ae21c074b2276d25e5c3e136a68b"
+    },
+    {
+        "name": "Doodles",
+        "network": "Ethereum mainnet",
+        "address": "0x8a90cab2b38dba80c64b7734e58ee1db38b8992e"
+    },
+    {
+        "name": "Pudgy Penguins",
+        "network": "Ethereum mainnet",
+        "address": "0xbd3531da5cf5857e7cfaa92426877b022e612cf8"
+    },
+    {
+        "name": "Meebits",
+        "network": "Ethereum mainnet",
+        "address": "0x7bd29408f11d2bfc23c34f18275bbf23bb716bc7"
+    },
+
+    {
+        "name": "Cool Cats NFT",
+        "network": "Ethereum mainnet",
+        "address": "0x1A92f7381B9F03921564a437210bB9396471050C"
+    },
+    {
+        "name": "MechMindsAI",
+        "network": "Ethereum mainnet",
+        "address": "0x31d843b99c2c4088cd20d96ef2426673b958ff70"
+    },
+    {
+        "name": "World of Women",
+        "network": "Ethereum mainnet",
+        "address": "0xe785e82358879f061bc3dcac6f0444462d4b5330"
+    },
+    {
+        "name": "0N1 Force",
+        "network": "Ethereum mainnet",
+        "address": "0x3bf2922f4520a8BA0c2eFC3D2a1539678DaD5e9D"
+    },
+    {
+        "name": "Loot (for Adventurers)",
+        "network": "Ethereum mainnet",
+        "address": "0xFF9C1b15B16263C61d017ee9F65C50e4AE0113D7"
+    },
+    {
+        "name": "CrypToadz by GREMPLIN",
+        "network": "Ethereum mainnet",
+        "address": "0x1CB1A5e65610AEFF2551A50f76a87a7d3fB649C6"
+    },
+    {
+        "name": "Milady Maker",
+        "network": "Ethereum mainnet",
+        "address": "0x5Af0D9827E0c53E4799BB226655A1de152A425a5"
+    },
+    {
+        "name": "mfers",
+        "network": "Ethereum mainnet",
+        "address": "0x79FCDEF22feeD20eDDacbB2587640e45491b757f"
+    },
+    {
+        "name": "VeeFriends",
+        "network": "Ethereum mainnet",
+        "address": "0xa3AEe8BcE55BEeA1951EF834b99f3Ac60d1ABeeB"
+    },
+    {
+        "name": "goblintown.wtf",
+        "network": "Ethereum mainnet",
+        "address": "0x8c6dEf540b83471664Edc6d5Cf75883986932674"
+    },
+    {
+        "name": "Invisible Friends",
+        "network": "Ethereum mainnet",
+        "address": "0x59468516a8259058baD1cA5F8f4BFF190d30E066"
+    },
+    {
+        "name": "RENGA",
+        "network": "Ethereum mainnet",
+        "address": "0x394E3d3044fC89fCDd966D3cb35Ac0B32B0Cda91"
+    },
+    {
+        "name": "The Captainz",
+        "network": "Ethereum mainnet",
+        "address": "0x769272677faB02575E84945F03Eca517ACc544Cc"
+    },
+    {
+        "name": "PXN: Ghost Division",
+        "network": "Ethereum mainnet",
+        "address": "0x160C404B2b49CBC3240055CEaEE026df1e8497A0"
+    },
+    {
+        "name": "FLUF World",
+        "network": "Ethereum mainnet",
+        "address": "0xCcc441ac31f02cD96C153DB6fd5Fe0a2F4e6A68d"
+    },
+    {
+        "name": "Moonbirds Oddities",
+        "network": "Ethereum mainnet",
+        "address": "0x1792a96E5668ad7C167ab804a100ce42395Ce54D"
+    },
+    {
+        "name": "The Potatoz",
+        "network": "Ethereum mainnet",
+        "address": "0x39ee2c7b3cb80254225884ca001F57118C8f21B6"
+    },
+    {
+        "name": "Nakamigos",
+        "network": "Ethereum mainnet",
+        "address": "0xd774557b647330C91Bf44cfEAB205095f7E6c367"
+    },
+    {
+        "name": "Creepz by OVERLORD",
+        "network": "Ethereum mainnet",
+        "address": "0x5946aeAAB44e65Eb370FFaa6a7EF2218Cff9b47D"
+    },
+    {
+        "name": "rektguy",
+        "network": "Ethereum mainnet",
+        "address": "0xB852c6b5892256C264Cc2C888eA462189154D8d7"
+    },
+    {
+        "name": "Kaiju Kingz",
+        "network": "Ethereum mainnet",
+        "address": "0x0c2E57EFddbA8c768147D1fdF9176a0A6EBd5d83"
+    },
+    {
+        "name": "Lazy Lions",
+        "network": "Ethereum mainnet",
+        "address": "0x8943C7bAC1914C9A7ABa750Bf2B6B09Fd21037E0"
+    },
+    {
+        "name": "Sappy Seals",
+        "network": "Ethereum mainnet",
+        "address": "0x364C828eE171616a39897688A831c2499aD972ec"
+    },
+    {
+        "name": "World of Women Galaxy",
+        "network": "Ethereum mainnet",
+        "address": "0xf61F24c2d93bF2dE187546B14425BF631F28d6dC"
+    },
+    {
+        "name": "alien frens",
+        "network": "Ethereum mainnet",
+        "address": "0x123b30E25973FeCd8354dd5f41Cc45A3065eF88C"
+    },
+    {
+        "name": "DigiDaigaku Genesis",
+        "network": "Ethereum mainnet",
+        "address": "0xd1258DB6Ac08eB0e625B75b371C023dA478E94A9"
+    },
+    {
+        "name": "Psychedelics Anonymous Genesis",
+        "network": "Ethereum mainnet",
+        "address": "0x75E95ba5997Eb235F40eCF8347cDb11F18ff640B"
+    },
+    {
+        "name": "Gutter Cat Gang",
+        "network": "Ethereum mainnet",
+        "address": "0xEdB61f74B0d09B2558F1eeb79B247c1F363Ae452"
+    },
+    {
+        "name": "Murakami.Flowers Official",
+        "network": "Ethereum mainnet",
+        "address": "0x7D8820FA92EB1584636f4F5b8515B5476B75171a"
+    },
+    {
+        "name": "DEGEN TOONZ",
+        "network": "Ethereum mainnet",
+        "address": "0x4D7d2e237D64d1484660b55c0A4cC092fa5e6716"
+    },
+    {
+        "name": "KILLABEARS",
+        "network": "Ethereum mainnet",
+        "address": "0xc99c679C50033Bbc5321EB88752E89a93e9e83C5"
+    },
+    {
+        "name": "Lil Pudgys",
+        "network": "Ethereum mainnet",
+        "address": "0x524cAB2ec69124574082676e6F654a18df49A048"
+    },
+    {
+        "name": "OnChainMonkey",
+        "network": "Ethereum mainnet",
+        "address": "0x960b7a6BCD451c9968473f7bbFd9Be826EFd549A"
+    },
+    {
+        "name": "a KID called BEAST",
+        "network": "Ethereum mainnet",
+        "address": "0x77372a4cc66063575b05b44481F059BE356964A4"
+    },
+    {
+        "name": "Inhabitants: Generative Identities",
+        "network": "Ethereum mainnet",
+        "address": "0x6dc6001535e15b9def7b0f6A20a2111dFA9454E2"
+    },
+    {
+        "name": "Forgotten Runes Wizards Cult",
+        "network": "Ethereum mainnet",
+        "address": "0x521f9C7505005CFA19A8E5786a9c3c9c9F5e6f42"
+    },
+    {
+        "name": "CryptoDickbutts",
+        "network": "Ethereum mainnet",
+        "address": "0x42069ABFE407C60cf4ae4112bEDEaD391dBa1cdB"
+    },
+    {
+        "name": "IO: Imaginary Ones",
+        "network": "Ethereum mainnet",
+        "address": "0x716F29B8972D551294d9E02B3eb0fC1107FbF4aA"
+    },
+    {
+        "name": "THE SHIBOSHIS",
+        "network": "Ethereum mainnet",
+        "address": "0x11450058d796B02EB53e65374be59cFf65d3FE7f"
+    },
+    {
+        "name": "Genuine Undead",
+        "network": "Ethereum mainnet",
+        "address": "0x209e639a0EC166Ac7a1A4bA41968fa967dB30221"
+    },
+    {
+        "name": "Kanpai Pandas",
+        "network": "Ethereum mainnet",
+        "address": "0xaCF63E56fd08970b43401492a02F6F38B6635C91"
+    },
+    {
+        "name": "Redacted Remilio Babies",
+        "network": "Ethereum mainnet",
+        "address": "0xD3D9ddd0CF0A5F0BFB8f7fcEAe075DF687eAEBaB"
+    },
+    {
+        "name": "Kubz",
+        "network": "Ethereum mainnet",
+        "address": "0xEb2dFC54EbaFcA8F50eFcc1e21A9D100b5AEb349"
+    },
+    {
+        "name": "Mocaverse",
+        "network": "Ethereum mainnet",
+        "address": "0x59325733eb952a92e069C87F0A6168b29E80627f"
+    },
+    {
+        "name": "LuppyclubOfficial",
+        "network": "Ethereum mainnet",
+        "address": "0x495f947276749Ce646f68AC8c248420045cb7b5e"
+    },
+    {
+        "name": "Anata",
+        "network": "Ethereum mainnet",
+        "address": "0xf729f878F95548BC7F14B127c96089cf121505F8"
+    },
+    {
+        "name": "10KTF Gucci Grail",
+        "network": "Ethereum mainnet",
+        "address": "0x572E33FFa523865791aB1C26B42a86aC244Df784"
+    },
+    {
+        "name": "Mutant Hounds",
+        "network": "Ethereum mainnet",
+        "address": "0x354634c4621cDfb7a25E6486cCA1E019777D841B"
+    },
+    {
+        "name": "The Plague NFT",
+        "network": "Ethereum mainnet",
+        "address": "0xC379e535CaFf250a01CAa6C3724Ed1359Fe5c29B"
+    },
+    {
+        "name": "Bobu, the Bean Farmer",
+        "network": "Ethereum mainnet",
+        "address": "0x2079812353E2C9409a788FBF5f383fa62aD85bE8"
+    },
+    {
+        "name": "Bulls and Apes Project - Genesis",
+        "network": "Ethereum mainnet",
+        "address": "0x2Cf6BE9AaC1c7630d5A23af88c28275C70eb8819"
+    },
+    {
+        "name": "Crypto Citizens",
+        "network": "Ethereum mainnet",
+        "address": "0xbDdE08BD57e5C9fD563eE7aC61618CB2ECdc0ce0"
+    },
+    {
+        "name": "KILLABITS",
+        "network": "Ethereum mainnet",
+        "address": "0x64a1C0937728d8d2fA8Cd81Ef61a9c860B7362Db"
+    },
+    {
+        "name": "OCM Karma",
+        "network": "Ethereum mainnet",
+        "address": "0x86CC280D0BAC0BD4Ea38ba7d31e895Aa20Cceb4b"
+    },
+    {
+        "name": "Space Riders NFT",
+        "network": "Ethereum mainnet",
+        "address": "0xC9d198089D6c31d0Ca5Cc5B92C97a57A97BBfdE2"
+    },
+    {
+        "name": "Ultiverse - Electric Sheep",
+        "network": "Ethereum mainnet",
+        "address": "0x3fD36d72f05fb1AF76EE7Ce9257ca850fAbA91ed"
+    },
+    {
+        "name": "Bit Bears by Berachain",
+        "network": "Ethereum mainnet",
+        "address": "0x32BB5a147b5371Fd901Aa4a72B7F82c58A87e36d"
+    },
+    {
+        "name": "Supreme Kong",
+        "network": "Ethereum mainnet",
+        "address": "0x12787526c03d626AAc88E6EDc4d0Fb930d86C631"
+    },
+    {
+        "name": "FVCK_AVATAR//",
+        "network": "Ethereum mainnet",
+        "address": "0x10cDcb5a80e888ec9e9154439e86b911f684Da7B"
+    },
+    {
+        "name": "CryptoPhunks",
+        "network": "Ethereum mainnet",
+        "address": "0xf07468eAd8cf26c752C676E43C814FEe9c8CF402"
+    },
+    {
+        "name": "MONGS NFT",
+        "network": "Ethereum mainnet",
+        "address": "0xb4a7d131436ed8EC06aD696FA3BF8d23C0aB3Acf"
+    },
+    {
+        "name": "Ordinal Kubz",
+        "network": "Ethereum mainnet",
+        "address": "0xC589770757cD0d372c54568BF7e5E1d56b958015"
+    },
+    {
+        "name": "Sproto Gremlins",
+        "network": "Ethereum mainnet",
+        "address": "0xEeca64ea9fCf99A22806Cd99b3d29cf6e8D54925"
+    },
+    {
+        "name": "Tenset TGLP Genesis",
+        "network": "Ethereum mainnet",
+        "address": "0x28cE223853D123b52C74439B10b43366d73Fd3B5"
+    },
+    {
+        "name": "TCG Dragon Cave Club",
+        "network": "Ethereum mainnet",
+        "address": "0x77654e7E579b3C817a3672C1c66c050058b92B85"
+    },
+    {
+        "name": "10KTF Kagami",
+        "network": "Ethereum mainnet",
+        "address": "0xCCC1825cF04CAe4d497B202D1434Ec0f79eE535f"
+    },
+    {
+        "name": "Kubz Relic",
+        "network": "Ethereum mainnet",
+        "address": "0xE1B81CD6A494CBCA06a8e2055A62C2Cf0fa5A8ac"
+    },
+    {
+        "name": "Mad Meerkat Burrow",
+        "network": "Ethereum mainnet",
+        "address": "0xCE17F8Ef13cf67dA6EAb86e31360102eEA8609Ff"
+    },
+    {
+        "name": "Pixelady Maker",
+        "network": "Ethereum mainnet",
+        "address": "0x8fc0d90f2c45a5e7f94904075c952e0943cfccfd"
+    },
+    {
+        "name": "ALTS by adidas",
+        "network": "Ethereum mainnet",
+        "address": "0x749f5ddf5ab4c1f26f74560a78300563c34b417d"
+    },
+    {
+        "name": "The Band Bears",
+        "network": "Ethereum mainnet",
+        "address": "0xb4e570232d3e55d2ee850047639dc74da83c7067"
+    },
+    {
+        "name": "AV Yacht Club",
+        "network": "Ethereum mainnet",
+        "address": "0x69dAFb15ae5d8fA732829C64Fd330eBFAa25B0e4"
+    },
+    {
+        "name": "The Grapes",
+        "network": "Ethereum mainnet",
+        "address": "0xe1dC516B1486Aba548eecD2947A11273518434a4"
+    },
+    {
+        "name": "reepz",
+        "network": "Ethereum mainnet",
+        "address": "0xF192502dC0a01728955a82a5B84631Bf719c8Ee2"
+    },
+    {
+        "name": "Apes Together Strong Official NFT",
+        "network": "Ethereum mainnet",
+        "address": "0x7CB90567a118cd9F6CA326067A0813b289bdCb54"
+    },
+    {
+        "name": "Kitaro World Official",
+        "network": "Ethereum mainnet",
+        "address": "0x7DF64F69544c5bf71171dc5ab69b8602C2FF1E27"
+    },
+    {
+        "name": "Cyber Bandits by Michael Reeder",
+        "network": "Ethereum mainnet",
+        "address": "0x8F17a839B6cd38E9888BE3Cc901a6726e84d6462"
+    },
+    {
+        "name": "CNP / CryptoNinja Partners",
+        "network": "Ethereum mainnet",
+        "address": "0x138A5C693279b6Cd82F48d4bEf563251Bc15ADcE"
+    },
+    {
+        "name": "DigiDaigaku Super Villains",
+        "network": "Ethereum mainnet",
+        "address": "0x5c2C9094bB47C6feE89abD4a6126Fb3Fb39dE923"
+    },
+    {
+        "name": "Bulls and Apes Project - Apes",
+        "network": "Ethereum mainnet",
+        "address": "0x7f29b85834d6A2ba4BB1c64325686C6057B1B3C5"
+    },
+    {
+        "name": "Cornerstone: Companions",
+        "network": "Ethereum mainnet",
+        "address": "0x2A549E83C2F58DB1890553e58B4e95fd558b71E2"
+    },
+    {
+        "name": "ROTA Official",
+        "network": "Ethereum mainnet",
+        "address": "0xDfB29501b42f63A947Ddc5249F185D6BcBE6986f"
+    },
+    {
+        "name": "OnChain Buccaneers (OCB)",
+        "network": "Ethereum mainnet",
+        "address": "0x1dC454EE1Fd63F3D792aEee9D331c05D9C62B20A"
+    },
+    {
+        "name": "Rift Valley Motel Coin",
+        "network": "Ethereum mainnet",
+        "address": "0xbF42C1972877F39e102807E5E80ed2ff5D16aa5f"
+    },
+    {
+        "name": "Zokus By ChainZoku",
+        "network": "Ethereum mainnet",
+        "address": "0x31c6e456832052dbc337E2ac19c41fF37f9903A0"
+    },
+    {
+        "name": "INS1D3RS",
+        "network": "Ethereum mainnet",
+        "address": "0xA23a9e6002Cebb284E1797be6E0Cad201d13C2F2"
+    },
+    {
+        "name": "Edelstein",
+        "network": "Ethereum mainnet",
+        "address": "0x45C596850Ae65Be5CAc889c383424616Bac0f77b"
+    },
+    {
+        "name": "nakafakas",
+        "network": "Ethereum mainnet",
+        "address": "0x3AfDcC7E3d3Ea09B4251A08A8EFa2a58e182d8C7"
+    },
+    {
+        "name": "8lements Official",
+        "network": "Ethereum mainnet",
+        "address": "0x6cB07AB81DbB879aE4bf4a0E65230af01925919D"
+    },
+    {
+        "name": "SupDucks",
+        "network": "Ethereum mainnet",
+        "address": "0x3Fe1a4c1481c8351E91B64D5c398b159dE07cbc5"
+    },
+    {
+        "name": "HAPE PRIME",
+        "network": "Ethereum mainnet",
+        "address": "0x4Db1f25D3d98600140dfc18dEb7515Be5Bd293Af"
+    },
+    {
+        "name": "Chromie Squiggle by Snowfro",
+        "network": "Ethereum mainnet",
+        "address": "0x059EDD72Cd353dF5106D2B9cC5ab83a52287aC3a"
+    },
+    {
+        "name": "Checks - VV Edition",
+        "network": "Ethereum mainnet",
+        "address": "0x34eEBEE6942d8Def3c125458D1a86e0A897fd6f9"
+    },
+    {
+        "name": "MekaVerse",
+        "network": "Ethereum mainnet",
+        "address": "0x9A534628B4062E123cE7Ee2222ec20B86e16Ca8F"
+    },
+    {
+        "name": "Fidenza by Tyler Hobbs",
+        "network": "Ethereum mainnet",
+        "address": "0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270"
+    },
+    {
+        "name": "adidas Originals Into the Metaverse",
+        "network": "Ethereum mainnet",
+        "address": "0x28472a58A490c5e09A238847F66A68a47cC76f0f"
+    },
+    {
+        "name": "Art Gobblers",
+        "network": "Ethereum mainnet",
+        "address": "0x60bb1e2AA1c9ACAfB4d34F71585D7e959f387769"
+    },
+    {
+        "name": "Karafuru",
+        "network": "Ethereum mainnet",
+        "address": "0xd2F668a8461D6761115dAF8Aeb3cDf5F40C532C6"
+    },
+    {
+        "name": "Hashmasks",
+        "network": "Ethereum mainnet",
+        "address": "0xC2C747E0F7004F9E8817Db2ca4997657a7746928"
+    },
+    {
+        "name": "CyberBrokers",
+        "network": "Ethereum mainnet",
+        "address": "0x892848074ddeA461A15f337250Da3ce55580CA85"
+    },
+    {
+        "name": "Creature World",
+        "network": "Ethereum mainnet",
+        "address": "0xc92cedDfb8dd984A89fb494c376f9A48b999aAFc"
+    },
+    {
+        "name": "PhantaBear",
+        "network": "Ethereum mainnet",
+        "address": "0x67D9417C9C3c250f61A83C7e8658daC487B56B09"
+    },
+    {
+        "name": "DeGods",
+        "network": "Ethereum mainnet",
+        "address": "0x8821BeE2ba0dF28761AffF119D66390D594CD280"
+    },
+    {
+        "name": "CyberKongz VX",
+        "network": "Ethereum mainnet",
+        "address": "0x7EA3Cca10668B8346aeC0bf1844A49e995527c8B"
+    },
+    {
+        "name": "Wolf Game",
+        "network": "Ethereum mainnet",
+        "address": "0x7F36182DeE28c45dE6072a34D29855BaE76DBe2f"
+    },
+    {
+        "name": "Prime Ape Planet PAP",
+        "network": "Ethereum mainnet",
+        "address": "0x6632a9d63E142F17a668064D41A21193b49B41a0"
+    },
+    {
+        "name": "PROOF Collective",
+        "network": "Ethereum mainnet",
+        "address": "0x08D7C0242953446436F34b4C78Fe9da38c73668d"
+    },
+    {
+        "name": "Cool Pets NFT",
+        "network": "Ethereum mainnet",
+        "address": "0x86C10D10ECa1Fca9DAF87a279ABCcabe0063F247"
+    },
+    {
+        "name": "LOSTPOETS",
+        "network": "Ethereum mainnet",
+        "address": "0x4b3406a41399c7FD2BA65cbC93697Ad9E7eA61e5"
+    },
+    {
+        "name": "CyberKongz",
+        "network": "Ethereum mainnet",
+        "address": "0x57a204AA1042f6E66DD7730813f4024114d74f37"
+    },
+    {
+        "name": "The Doge Pound",
+        "network": "Ethereum mainnet",
+        "address": "0xF4ee95274741437636e748DdAc70818B4ED7d043"
+    },
+    {
+        "name": "SuperNormal",
+        "network": "Ethereum mainnet",
+        "address": "0xb0640E8B5F24beDC63c33d371923D68fDe020303"
+    },
+    {
+        "name": "HV-MTL",
+        "network": "Ethereum mainnet",
+        "address": "0x4b15a9c28034dC83db40CD810001427d3BD7163D"
+    },
+    {
+        "name": "Ringers by Dmitri Cherniak",
+        "network": "Ethereum mainnet",
+        "address": "0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270"
+    },
+    {
+        "name": "Coolman's Universe",
+        "network": "Ethereum mainnet",
+        "address": "0xa5C0Bd78D1667c13BFB403E2a3336871396713c5"
+    },
+    {
+        "name": "VOX Collectibles: Town Star",
+        "network": "Ethereum mainnet",
+        "address": "0xad9Fd7cB4fC7A0fBCE08d64068f60CbDE22Ed34C"
+    },
+    {
+        "name": "Capsule House",
+        "network": "Ethereum mainnet",
+        "address": "0xfcB1315C4273954F74Cb16D5b663DBF479EEC62e"
+    },
+    {
+        "name": "PUNKS Comic",
+        "network": "Ethereum mainnet",
+        "address": "0xB716600Ed99B4710152582a124C697A7Fe78ADBF"
+    },
+    {
+        "name": "Damien Hirst - The Currency",
+        "network": "Ethereum mainnet",
+        "address": "0xaaDc2D4261199ce24A4B0a57370c4FCf43BB60aa"
+    },
+    {
+        "name": "Voxels (formerly Cryptovoxels)",
+        "network": "Ethereum mainnet",
+        "address": "0x79986aF15539de2db9A5086382daEdA917A9CF0C"
+    },
+    {
+        "name": "Terraforms by Mathcastles",
+        "network": "Ethereum mainnet",
+        "address": "0x4E1f41613c9084FdB9E34E11fAE9412427480e56"
+    },
+    {
+        "name": "Town Star",
+        "network": "Ethereum mainnet",
+        "address": "0xc36cF0cFcb5d905B8B513860dB0CFE63F6Cf9F5c"
+    },
+    {
+        "name": "Lives of Asuna",
+        "network": "Ethereum mainnet",
+        "address": "0xAf615B61448691fC3E4c61AE4F015d6e77b6CCa8"
+    },
+    {
+        "name": "Adam Bomb Squad",
+        "network": "Ethereum mainnet",
+        "address": "0x7AB2352b1D2e185560494D5e577F9D3c238b78C5"
+    },
+    {
+        "name": "Sneaky Vampire Syndicate",
+        "network": "Ethereum mainnet",
+        "address": "0x219B8aB790dECC32444a6600971c7C3718252539"
+    },
+    {
+        "name": "CryptoSkulls",
+        "network": "Ethereum mainnet",
+        "address": "0xc1Caf0C19A8AC28c41Fe59bA6c754e4b9bd54dE9"
+    },
+    {
+        "name": "Pixelmon - Generation 1",
+        "network": "Ethereum mainnet",
+        "address": "0x32973908FaeE0Bf825A343000fE412ebE56F802A"
+    },
+    {
+        "name": "Dooplicator",
+        "network": "Ethereum mainnet",
+        "address": "0x466CFcD0525189b573E794F554b8A751279213Ac"
+    },
+    {
+        "name": "Killer GF",
+        "network": "Ethereum mainnet",
+        "address": "0x6bE69b2A9B153737887CfcdCa7781eD1511C7e36"
+    },
+    {
+        "name": "Autoglyphs",
+        "network": "Ethereum mainnet",
+        "address": "0xd4e4078ca3495DE5B1d4dB434BEbc5a986197782"
+    },
+    {
+        "name": "oncyber labs",
+        "network": "Ethereum mainnet",
+        "address": "0x226Bf5293692610692E2C996C9875C914d2A7f73"
+    },
+    {
+        "name": "Muri by Fabrik",
+        "network": "Ethereum mainnet",
+        "address": "0x4B61413D4392c806E6d0fF5Ee91E6073C21d6430"
+    },
+    {
+        "name": "The Weirdo Ghost Gang",
+        "network": "Ethereum mainnet",
+        "address": "0x9401518f4EBBA857BAA879D9f76E1Cc8b31ed197"
+    },
+    {
+        "name": "Chimpers",
+        "network": "Ethereum mainnet",
+        "address": "0x80336Ad7A747236ef41F47ed2C7641828a480BAA"
+    },
+    {
+        "name": "The Memes by 6529",
+        "network": "Ethereum mainnet",
+        "address": "0x33FD426905F149f8376e227d0C9D3340AaD17aF1"
+    },
+    {
+        "name": "Meridian by Matt DesLauriers",
+        "network": "Ethereum mainnet",
+        "address": "0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270"
+    },
+    {
+        "name": "888 inner circle",
+        "network": "Ethereum mainnet",
+        "address": "0x36d30B3b85255473D27dd0F7fD8F35e36a9d6F06"
+    },
+    {
+        "name": "MoonCats",
+        "network": "Ethereum mainnet",
+        "address": "0xc3f733ca98E0daD0386979Eb96fb1722A1A05E69"
+    },
+    {
+        "name": "Somnium Space VR",
+        "network": "Ethereum mainnet",
+        "address": "0x2a378c8D96e7d994FB9bEc6adb7C6AF2fe772c3b"
+    },
+    {
+        "name": "77-Bit",
+        "network": "Ethereum mainnet",
+        "address": "0x497a9A79e82e6fC0FF10a16f6F75e6fcd5aE65a8"
+    },
+    {
+        "name": "My Pet Hooligan",
+        "network": "Ethereum mainnet",
+        "address": "0x09233d553058c2F42ba751C87816a8E9FaE7Ef10"
+    },
+    {
+        "name": "Rumble Kong League",
+        "network": "Ethereum mainnet",
+        "address": "0xEf0182dc0574cd5874494a120750FD222FdB909a"
+    },
+    {
+        "name": "JUNGLE FREAKS GENESIS",
+        "network": "Ethereum mainnet",
+        "address": "0x7E6Bc952d4b4bD814853301bEe48E99891424de0"
+    },
+    {
+        "name": "Bears Deluxe",
+        "network": "Ethereum mainnet",
+        "address": "0x4BB33f6E69fd62cf3abbcC6F1F43b94A5D572C2B"
+    },
+    {
+        "name": "Lil' Heroes by Edgar Plans",
+        "network": "Ethereum mainnet",
+        "address": "0xD78b76Fcc33cd416dA9d3D42f72649a23D7AC647"
+    },
+    {
+        "name": "tubby cats",
+        "network": "Ethereum mainnet",
+        "address": "0xCa7cA7BcC765F77339bE2d648BA53ce9c8a262bD"
+    },
+    {
+        "name": "GalacticApes",
+        "network": "Ethereum mainnet",
+        "address": "0x12d2D1beD91c24f878F37E66bd829Ce7197e4d14"
+    },
+    {
+        "name": "Friendship Bracelets by Alexis André",
+        "network": "Ethereum mainnet",
+        "address": "0x942BC2d3e7a589FE5bd4A5C6eF9727DFd82F5C8a"
+    },
+    {
+        "name": "Nouns",
+        "network": "Ethereum mainnet",
+        "address": "0x9C8fF314C9Bc7F6e59A9d9225Fb22946427eDC03"
+    },
+    {
+        "name": "CryptoBatz by Ozzy Osbourne",
+        "network": "Ethereum mainnet",
+        "address": "0xc8adFb4D437357D0A656D4e62fd9a6D22e401aa0"
+    },
+    {
+        "name": "Forgotten Runes Wizards Cult",
+        "network": "Ethereum mainnet",
+        "address": "0x521f9C7505005CFA19A8E5786a9c3c9c9F5e6f42"
+    },
+    {
+        "name": "Mirandus",
+        "network": "Ethereum mainnet",
+        "address": "0xc36cF0cFcb5d905B8B513860dB0CFE63F6Cf9F5c"
+    },
+    {
+        "name": "JRNY Club",
+        "network": "Ethereum mainnet",
+        "address": "0x0b4B2bA334f476C8F41bFe52A428D6891755554d"
+    },
+    {
+        "name": "Boss Beauties",
+        "network": "Ethereum mainnet",
+        "address": "0xB5C747561a185A146f83cFff25BdfD2455b31fF4"
+    },
+    {
+        "name": "Treeverse Plots",
+        "network": "Ethereum mainnet",
+        "address": "0x1B829B926a14634d36625e60165c0770C09D02b2"
+    },
+    {
+        "name": "Robotos",
+        "network": "Ethereum mainnet",
+        "address": "0x099689220846644F87D1137665CDED7BF3422747"
+    },
+    {
+        "name": "Anonymice",
+        "network": "Ethereum mainnet",
+        "address": "0xbad6186E92002E312078b5a1dAfd5ddf63d3f731"
+    },
+    {
+        "name": "KIWAMI Genesis",
+        "network": "Ethereum mainnet",
+        "address": "0x701A038aF4Bd0fc9b69A829DdcB2f61185a49568"
+    },
+    {
+        "name": "Akutars",
+        "network": "Ethereum mainnet",
+        "address": "0xaaD35C2DadbE77f97301617D82e661776c891Fa9"
+    },
+    {
+        "name": "HYPEBEARSCLUB.OFFICIAL",
+        "network": "Ethereum mainnet",
+        "address": "0x14e0a1F310E2B7E321c91f58847e98b8C802f6eF"
+    },
+    {
+        "name": "CryptoMories",
+        "network": "Ethereum mainnet",
+        "address": "0x361A5881f18b968422E9258cB7c1FA53FF4cdD38"
+    },
+    {
+        "name": "The Saudis",
+        "network": "Ethereum mainnet",
+        "address": "0xe21EBCD28d37A67757B9Bc7b290f4C4928A430b1"
+    },
+    {
+        "name": "Rug Radio - Genesis NFT",
+        "network": "Ethereum mainnet",
+        "address": "0x8ff1523091c9517BC328223D50b52Ef450200339"
+    },
+    {
+        "name": "Hausphases by Fabrik",
+        "network": "Ethereum mainnet",
+        "address": "0x5be99338289909d6dbBC57bb791140Ef85cCbCAB"
+    },
+    {
+        "name": "RaidParty Fighters",
+        "network": "Ethereum mainnet",
+        "address": "0x87E738a3d5E5345d6212D8982205A564289e6324"
+    },
+    {
+        "name": "Moonrunners Official",
+        "network": "Ethereum mainnet",
+        "address": "0x1485297e942ce64E0870EcE60179dFda34b4C625"
+    },
+    {
+        "name": "C-01 Official Collection",
+        "network": "Ethereum mainnet",
+        "address": "0x6FD053BfF10512d743Fa36C859e49351a4920df6"
+    },
+    {
+        "name": "WonderPals",
+        "network": "Ethereum mainnet",
+        "address": "0x3Acce66cD37518A6d77d9ea3039E00B3A2955460"
+    },
+    {
+        "name": "Rare Apepes",
+        "network": "Ethereum mainnet",
+        "address": "0x31d45de84fdE2fB36575085e05754a4932DD5170"
+    },
+    {
+        "name": "Crypto Bull Society",
+        "network": "Ethereum mainnet",
+        "address": "0x469823c7B84264D1BAfBcD6010e9cdf1cac305a3"
+    },
+    {
+        "name": "The Watch",
+        "network": "Ethereum mainnet",
+        "address": "0x236672Ed575E1e479b8E101AEeb920F32361f6F9"
+    },
+    {
+        "name": "Chain Runners",
+        "network": "Ethereum mainnet",
+        "address": "0x97597002980134beA46250Aa0510C9B90d87A587"
+    },
+    {
+        "name": "Crypto.Chicks",
+        "network": "Ethereum mainnet",
+        "address": "0x1981CC36b59cffdd24B01CC5d698daa75e367e04"
+    },
+    {
+        "name": "MOAR by Joan Cornella",
+        "network": "Ethereum mainnet",
+        "address": "0xeB3a9A839dFeEaf71db1B4eD6a8ae0cCB171b227"
+    },
+    {
+        "name": "The Humanoids",
+        "network": "Ethereum mainnet",
+        "address": "0x3a5051566b2241285BE871f650C445A88A970edd"
+    },
+    {
+        "name": "inBetweeners by GianPiero",
+        "network": "Ethereum mainnet",
+        "address": "0x94638Cbf3c54c1f956a5F05cBC0F9aFb6822020d"
+    },
+    {
+        "name": "The Sevens - Genesis",
+        "network": "Ethereum mainnet",
+        "address": "0xf497253C2bB7644ebb99e4d9ECC104aE7a79187A"
+    },
+    {
+        "name": "KPR",
+        "network": "Ethereum mainnet",
+        "address": "0x2d33Bfe1c867346543Ac245396DFc6c3EBc8534F"
+    },
+    {
+        "name": "Boki",
+        "network": "Ethereum mainnet",
+        "address": "0x248139aFB8d3A2e16154FbE4Fb528A3a214fd8E7"
+    },
+    {
+        "name": "Owls",
+        "network": "Ethereum mainnet",
+        "address": "0xe2e27b49e405f6c25796167B2500C195F972eBac"
+    },
+    {
+        "name": "Desperate ApeWives",
+        "network": "Ethereum mainnet",
+        "address": "0xF1268733C6FB05EF6bE9cF23d24436Dcd6E0B35E"
+    },
+    {
+        "name": "We Are All Going to Die",
+        "network": "Ethereum mainnet",
+        "address": "0x659A4BdaAaCc62d2bd9Cb18225D9C89b5B697A5A"
+    },
+    {
+        "name": "PEACEFUL GROUPIES",
+        "network": "Ethereum mainnet",
+        "address": "0x4f89Cd0CAE1e54D98db6a80150a824a533502EEa"
+    },
+    {
+        "name": "Neo Tokyo Citizens",
+        "network": "Ethereum mainnet",
+        "address": "0xB9951B43802dCF3ef5b14567cb17adF367ed1c0F"
+    },
+    {
+        "name": "DourDarcels",
+        "network": "Ethereum mainnet",
+        "address": "0x8d609Bd201bEaea7DccbfbD9c22851e23Da68691"
+    },
+    {
+        "name": "The CryptoDads",
+        "network": "Ethereum mainnet",
+        "address": "0xECDD2F733bD20E56865750eBcE33f17Da0bEE461"
+    },
+    {
+        "name": "the littles NFT",
+        "network": "Ethereum mainnet",
+        "address": "0xc6ec80029CD2aa4B0021cEb11248C07b25D2DE34"
+    },
+    {
+        "name": "Wassies by Wassies",
+        "network": "Ethereum mainnet",
+        "address": "0x1D20A51F088492A0f1C57f047A9e30c9aB5C07Ea"
+    },
+    {
+        "name": "Tasty Bones XYZ",
+        "network": "Ethereum mainnet",
+        "address": "0x1b79c7832ed9358E024F9e46E9c8b6f56633691B"
+    },
+    {
+        "name": "Ape Kids Club (AKC)",
+        "network": "Ethereum mainnet",
+        "address": "0x9Bf252f97891b907F002F2887EfF9246e3054080"
+    },
+    {
+        "name": "Smilesss",
+        "network": "Ethereum mainnet",
+        "address": "0x177EF8787CEb5D4596b6f011df08C86eb84380dC"
+    },
+    {
+        "name": "PORSCHΞ 911",
+        "network": "Ethereum mainnet",
+        "address": "0xCcDF1373040D9Ca4B5BE1392d1945C1DaE4a862c"
+    },
+    {
+        "name": "Momoguro: Holoself",
+        "network": "Ethereum mainnet",
+        "address": "0x59Ad67e9c6a84e602BC73B3A606F731CC6dF210d"
+    },
+    {
+        "name": "IlluminatiNFT by Truth Labs",
+        "network": "Ethereum mainnet",
+        "address": "0x8CB05890B7A640341069fB65DD4e070367f4D2E6"
+    },
+    {
+        "name": "ALPACADABRAZ",
+        "network": "Ethereum mainnet",
+        "address": "0x3DB5463A9e2d04334192C6f2DD4B72DeF4751A61"
+    },
+    {
+        "name": "Llamaverse Genesis",
+        "network": "Ethereum mainnet",
+        "address": "0x9df8Aa7C681f33E442A0d57B838555da863504f3"
+    },
+    {
+        "name": "Edenhorde",
+        "network": "Ethereum mainnet",
+        "address": "0x9eEAeCBE2884AA7e82f450E3Fc174F30Fc2a8de3"
+    },
+    {
+        "name": "Acrocalypse",
+        "network": "Ethereum mainnet",
+        "address": "0xf472bfd59A68E9BFa56A354DC8599611C86bD3ad"
+    },
+    {
+        "name": "SlimHoods",
+        "network": "Ethereum mainnet",
+        "address": "0x2931B181Ae9Dc8F8109eC41C42480933F411ef94"
+    },
+    {
+        "name": "MoodRollers by Lucas Zanotto",
+        "network": "Ethereum mainnet",
+        "address": "0xE3234e57ac38890a9136247EAdFE1860316Ff6ab"
+    },
+    {
+        "name": "God Hates NFTees",
+        "network": "Ethereum mainnet",
+        "address": "0xE6d48bF4ee912235398b96E16Db6F310c21e82CB"
+    },
+    {
+        "name": "CryptoKitties",
+        "network": "Ethereum mainnet",
+        "address": "0x06012c8cf97BEaD5deAe237070F9587f8E7A266d"
+    },
+    {
+        "name": "Cool Monkes Genesis",
+        "network": "Ethereum mainnet",
+        "address": "0x716039AB9Ce2780e35450B86Dc6420f22460C380"
+    },
+    {
+        "name": "Antonym: GENESIS",
+        "network": "Ethereum mainnet",
+        "address": "0x7e3Ef31186D1BEc0D3f35aD701D065743B84C790"
+    },
+    {
+        "name": "The Wicked Craniums",
+        "network": "Ethereum mainnet",
+        "address": "0x85f740958906b317de6ed79663012859067E745B"
+    },
+    {
+        "name": "PartyBear",
+        "network": "Ethereum mainnet",
+        "address": "0x35471f47c3C0BC5FC75025b97A19ECDDe00F78f8"
+    },
+    {
+        "name": "Elemental by Fang Lijun",
+        "network": "Ethereum mainnet",
+        "address": "0xC9677Cd8e9652F1b1aaDd3429769b0Ef8D7A0425"
+    },
+    {
+        "name": "X Rabbits Club",
+        "network": "Ethereum mainnet",
+        "address": "0x534D37C630b7e4d2A6C1E064F3a2632739e9EE04"
+    },
+    {
+        "name": "Dippies",
+        "network": "Ethereum mainnet",
+        "address": "0x82F5eF9dDC3D231962Ba57A9c2eBb307Dc8d26c2"
+    },
+    {
+        "name": "GEVOLs",
+        "network": "Ethereum mainnet",
+        "address": "0x34b4Df75a17f8B3a6Eff6bBA477d39D701f5e92c"
+    },
+    {
+        "name": "The Possessed",
+        "network": "Ethereum mainnet",
+        "address": "0x3A2096754Df385553C4252E5A82DC862e64169Bb"
+    },
+    {
+        "name": "Fragments By James Jean",
+        "network": "Ethereum mainnet",
+        "address": "0x51f0c1938b0E67CaFC7a6fC8eB6EdD7FDBe002bC"
+    },
+    {
+        "name": "Winter Bears",
+        "network": "Ethereum mainnet",
+        "address": "0xC8BcbE0E8ae36D8f9238cd320ef6dE88784B1734"
+    },
+    {
+        "name": "Crypto Coven",
+        "network": "Ethereum mainnet",
+        "address": "0x5180db8F5c931aaE63c74266b211F580155ecac8"
+    },
+    {
+        "name": "Apocalyptic Apes",
+        "network": "Ethereum mainnet",
+        "address": "0x63FA29Fec10C997851CCd2466Dad20E51B17C8aF"
+    },
+    {
+        "name": "FishyFam",
+        "network": "Ethereum mainnet",
+        "address": "0xaaD35C2DadbE77f97301617D82e661776c891Fa9"
+    },
+    {
+        "name": "(B)APETAVERSE",
+        "network": "Ethereum mainnet",
+        "address": "0x4addcA4c07a5e9a6b4973094D03AD5aAE7735E5b"
+    },
+    {
+        "name": "Habbo Avatars",
+        "network": "Ethereum mainnet",
+        "address": "0x8a1BbEf259B00cEd668A8c69e50D92619C672176"
+    },
+    {
+        "name": "Nina's Super Cool World",
+        "network": "Ethereum mainnet",
+        "address": "0x670D4DD2e6BADFBbD372D0d37E06cd2852754a04"
+    },
+    {
+        "name": "Stoner Cats",
+        "network": "Ethereum mainnet",
+        "address": "0xD4d871419714B778eBec2E22C7c53572b573706e"
+    },
+    {
+        "name": "Galaxy Fight Club",
+        "network": "Ethereum mainnet",
+        "address": "0x3702f4C46785BbD947d59A2516ac1ea30F2BAbF2"
+    },
+    {
+        "name": "8liens NFT",
+        "network": "Ethereum mainnet",
+        "address": "0x740c178e10662bBb050BDE257bFA318dEfE3cabC"
+    },
+    {
+        "name": "Gray Boys",
+        "network": "Ethereum mainnet",
+        "address": "0x8d4100897447d173289560BC85c5C432Be4f44E4"
+    },
+    {
+        "name": "The Doggies (Snoop Dogg)",
+        "network": "Ethereum mainnet",
+        "address": "0xC7dF86762ba83f2a6197e1Ff9Bb40ae0f696B9E6"
+    },
+    {
+        "name": "Wicked Ape Bone Club",
+        "network": "Ethereum mainnet",
+        "address": "0xbe6e3669464E7dB1e1528212F0BfF5039461CB82"
+    },
+    {
+        "name": "Swampverse",
+        "network": "Ethereum mainnet",
+        "address": "0x95784F7b5c8849b0104EAf5D13d6341d8CC40750"
+    },
+    {
+        "name": "Cupcats Official",
+        "network": "Ethereum mainnet",
+        "address": "0x8Cd8155e1af6AD31dd9Eec2cEd37e04145aCFCb3"
+    },
+    {
+        "name": "Party Ape Billionaire Club",
+        "network": "Ethereum mainnet",
+        "address": "0x5DF340b5D1618c543aC81837dA1C2d2B17b3B5d8"
+    },
+    {
+        "name": "MekaApes Game by OogaVerse",
+        "network": "Ethereum mainnet",
+        "address": "0xc71a726D390Bf02b4Af8920c0820970310D0F367"
+    },
+    {
+        "name": "Cryptoon Goonz",
+        "network": "Ethereum mainnet",
+        "address": "0x0322F6f11A94CFB1b5B6E95E059d8DEB2bf17D6A"
+    },
+    {
+        "name": "Monster Ape Club | MAC",
+        "network": "Ethereum mainnet",
+        "address": "0x696115768BBEf67Be8bd408d760332A7EfbEE92D"
+    },
+    {
+        "name": "LinksDAO",
+        "network": "Ethereum mainnet",
+        "address": "0xaaD35C2DadbE77f97301617D82e661776c891Fa9"
+    },
+    {
+        "name": "HOWLERZ",
+        "network": "Ethereum mainnet",
+        "address": "0x40Cf6a63C35B6886421988871F6b74cC86309940"
+    },
+    {
+        "name": "Boonji Project",
+        "network": "Ethereum mainnet",
+        "address": "0x4cd0ea8b1bDb5ab9249d96cCF3d8A0d3aDa2Bc76"
+    },
+    {
+        "name": "DystoPunks",
+        "network": "Ethereum mainnet",
+        "address": "0xbEA8123277142dE42571f1fAc045225a1D347977"
+    },
+    {
+        "name": "WomenRise",
+        "network": "Ethereum mainnet",
+        "address": "0x7f7685b4CC34BD19E2B712D8a89f34D219E76c35"
+    },
+    {
+        "name": "SpacePunksClub",
+        "network": "Ethereum mainnet",
+        "address": "0x45DB714f24f5A313569c41683047f1d49e78Ba07"
+    },
+    {
+        "name": "Al Cabones",
+        "network": "Ethereum mainnet",
+        "address": "0x8Ca5209d8CCe34b0de91C2C4b4B14F20AFf8BA23"
+    },
+    {
+        "name": "FoxFam",
+        "network": "Ethereum mainnet",
+        "address": "0x7cBa74d0B16C8E18a9e48D3B7404D7739bb24F23"
+    },
+    {
+        "name": "PG GEN 2",
+        "network": "Ethereum mainnet",
+        "address": "0xEDc3AD89f7b0963fe23D714B34185713706B815b"
+    },
+    {
+        "name": "Ape Gang",
+        "network": "Ethereum mainnet",
+        "address": "0x2118fA9369b9a52fB6Bf8cF3fd392643d55a53B4"
+    },
+    {
+        "name": "Isekai Meta",
+        "network": "Ethereum mainnet",
+        "address": "0x684E4ED51D350b4d76A3a07864dF572D24e6dC4c"
+    },
+    {
+        "name": "Little Lemon Friends",
+        "network": "Ethereum mainnet",
+        "address": "0x0B22fE0a2995C5389AC093400e52471DCa8BB48a"
+    },
+    {
+        "name": "The Girls of Armament: GENE_SIS",
+        "network": "Ethereum mainnet",
+        "address": "0xd8a5d498ab43Ed060cb6629b97a19e3e4276dD9f"
+    },
+    {
+        "name": "BYOPill",
+        "network": "Ethereum mainnet",
+        "address": "0xbD275ce24f32d6cE4e9d9519C55ABe9Bc0ed7fCf"
+    },
+    {
+        "name": "Shiba Social Club Official Collection",
+        "network": "Ethereum mainnet",
+        "address": "0xD692cEd124A474f051f9744a301C26D1017B3D54"
+    },
+    {
+        "name": "dotdotdots",
+        "network": "Ethereum mainnet",
+        "address": "0xcE25E60A89F200B1fA40f6c313047FFe386992c3"
+    },
+    {
+        "name": "SUPERPLASTIC: SUPERGUCCI",
+        "network": "Ethereum mainnet",
+        "address": "0x78d61C684A992b0289Bbfe58Aaa2659F667907f8"
+    },
+    {
+        "name": "Gh0stly Gh0sts",
+        "network": "Ethereum mainnet",
+        "address": "0xA74aE2c6FCa0CEdbAef30A8CEEF834B247186bcF"
+    },
+    {
+        "name": "EtherOrcs Genesis",
+        "network": "Ethereum mainnet",
+        "address": "0x3aBEDBA3052845CE3f57818032BFA747CDED3fca"
+    },
+    {
+        "name": "Kitaro World",
+        "network": "Ethereum mainnet",
+        "address": "0x39D3230c84EFCB5559D22F499151934476B5c16d"
+    },
+    {
+        "name": "AINightbirds",
+        "network": "Ethereum mainnet",
+        "address": "0x64b6b4142d4D78E49D53430C1d3939F2317f9085"
+    },
+    {
+        "name": "Dr. ETHvil's 3D FrankenPunks",
+        "network": "Ethereum mainnet",
+        "address": "0x1FEC856e25F757FeD06eB90548B0224E91095738"
+    },
+    {
+        "name": "Fang Gang",
+        "network": "Ethereum mainnet",
+        "address": "0x9d418C2Cae665D877F909a725402EbD3A0742844"
+    },
+    {
+        "name": "KCG",
+        "network": "Ethereum mainnet",
+        "address": "0xA302F0d51A365B18e86c291056dC265a73F19419"
+    },
+    {
+        "name": "Gooniez Gang Official",
+        "network": "Ethereum mainnet",
+        "address": "0x18cD9fDa7d584401D04E30bf73FB0013EfE65bb0"
+    },
+    {
+        "name": "Alpha Kongs Club - AKC",
+        "network": "Ethereum mainnet",
+        "address": "0xDBCab7A768EA9a00B2fFA5A2eB387cAD609E2114"
+    },
+    {
+        "name": "WZRDS",
+        "network": "Ethereum mainnet",
+        "address": "0xe5E771bC685c5a89710131919C616c361ff001c6"
+    },
+    {
+        "name": "Angry Ape Army",
+        "network": "Ethereum mainnet",
+        "address": "0x77640cf3F89A4F1B5CA3A1e5c87f3F5B12ebf87e"
+    },
+    {
+        "name": "Jadu Hoverboard",
+        "network": "Ethereum mainnet",
+        "address": "0xeDa3b617646B5fc8C9c696e0356390128cE900F8"
+    },
+    {
+        "name": "LetsWalk",
+        "network": "Ethereum mainnet",
+        "address": "0x0825F050E9B021A0E9de8CB1fb10b6C9F41e834C"
+    },
+    {
+        "name": "The Habibiz",
+        "network": "Ethereum mainnet",
+        "address": "0x98a0227E99E7AF0f1f0D51746211a245c3B859c2"
+    },
+    {
+        "name": "META KONGZ OFFICIAL",
+        "network": "Ethereum mainnet",
+        "address": "0x46FdfCb3Cd89A1C54D36EE83a4ADC184747B40D9"
+    },
+    {
+        "name": "Lonely Alien Space Club",
+        "network": "Ethereum mainnet",
+        "address": "0x343f999eAACdFa1f201fb8e43ebb35c99D9aE0c1"
+    },
+    {
+        "name": "Akumu Dragonz",
+        "network": "Ethereum mainnet",
+        "address": "0xC1ad47aeb274157E24A5f01B5857830aeF962843"
+    },
+    {
+        "name": "DeadHeads",
+        "network": "Ethereum mainnet",
+        "address": "0x6fC355D4e0EE44b292E50878F49798ff755A5bbC"
+    },
+    {
+        "name": "Incognito",
+        "network": "Ethereum mainnet",
+        "address": "0x3F4a885ED8d9cDF10f3349357E3b243F3695b24A"
+    },
+    {
+        "name": "DentedFeelsNFT",
+        "network": "Ethereum mainnet",
+        "address": "0xc5e55e4Bd5Fef12831b5a666fc9e391538ACdc45"
+    },
+    {
+        "name": "Party Degenerates",
+        "network": "Ethereum mainnet",
+        "address": "0x4BE3223f8708Ca6b30D1E8b8926cF281EC83E770"
+    },
+    {
+        "name": "The Mike Tyson NFT Collection by Cory Van Lew",
+        "network": "Ethereum mainnet",
+        "address": "0x40fB1c0f6f73B9fc5a81574FF39d27e0Ba06b17b"
+    },
+    {
+        "name": "Fancy Bears Metaverse",
+        "network": "Ethereum mainnet",
+        "address": "0x87084ec881d5A15C918057F326790dB177D218F2"
+    },
+    {
+        "name": "PGFK",
+        "network": "Ethereum mainnet",
+        "address": "0x9F9c171aFdE4cc6bBF6d38aE4012c83633653B85"
+    },
+    {
+        "name": "Flooz GEN F",
+        "network": "Ethereum mainnet",
+        "address": "0x369156da04B6F313b532F7aE08E661e402B1C2F2"
+    },
+    {
+        "name": "Bored & Dangerous",
+        "network": "Ethereum mainnet",
+        "address": "0xBA627f3d081cc97ac0eDc40591eda7053AC63532"
+    },
+    {
+        "name": "The Yakuza Cats Society",
+        "network": "Ethereum mainnet",
+        "address": "0x454cBC099079DC38b145E37e982e524AF3279c44"
+    },
+    {
+        "name": "Gutter Pigeons",
+        "network": "Ethereum mainnet",
+        "address": "0x950b9476a4de757BB134483029AC4Ec17E739e3A"
+    },
+    {
+        "name": "Lucky Elephant Club",
+        "network": "Ethereum mainnet",
+        "address": "0x42de23cc51A8425C248C9801395DD47BD1996152"
+    }
+
+      ];
+
+      const projectList = document.getElementById('project-list');
+      const filterInput = document.getElementById('filter');
+
+      // Function to filter projects based on user input
+      function filterProjects() {
+        const filterValue = filterInput.value.toLowerCase();
+
+        // Clear the project list
+        projectList.innerHTML = '';
+
+        // Filter the projects based on the user input
+        const filteredProjects = allowlist.filter(project => {
+          const projectName = project.name.toLowerCase();
+          return projectName.includes(filterValue);
+        });
+
+        // Display the filtered projects
+        filteredProjects.forEach(project => {
+          const projectItem = document.createElement('div');
+          projectItem.classList.add('project-item');
+
+          const projectName = document.createElement('p');
+          projectName.classList.add('project-name');
+          projectName.textContent = project.name;
+
+          const projectNetwork = document.createElement('p');
+          projectNetwork.classList.add('project-network');
+          projectNetwork.textContent = `Network: ${project.network}`;
+
+          projectItem.appendChild(projectName);
+          projectItem.appendChild(projectNetwork);
+          projectList.appendChild(projectItem);
+        });
+      }
+
+      // Event listener for the filter input
+      filterInput.addEventListener('input', filterProjects);
+    });
+
+    // Open Google Form
+    function openGoogleForm() {
+      // Replace with your Google Form URL
+      const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfKkhhQ_Ph4tyVpzurly8f4SUkjlRJzmfgdQi1UwwgsJJkjcw/viewform?usp=sf_link';
+
+      window.open(googleFormUrl, '_blank');
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+			
+            
+
+				<a class="night_day_switch <?php if ($_COOKIE['mode'] == 'night') { ?>night<?php } else {?>day<?php } ?>" href="javascript:void(0);" id="night_mode_toggle" data-mode='<?php echo Wo_Secure($wo['mode_link']) ?>'>
+					<svg class="sun" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.9985 6.4473C11.6692 6.4473 11.4023 6.18622 11.4023 5.86424V4.58306C11.4023 4.26094 11.6693 4 11.9985 4C12.3278 4 12.5946 4.26107 12.5946 4.58306V5.86424C12.5946 6.18636 12.3278 6.4473 11.9985 6.4473Z" fill="currentColor"/><path d="M11.9985 19.9999C11.6692 19.9999 11.4023 19.7388 11.4023 19.417V18.1357C11.4023 17.8136 11.6693 17.5527 11.9985 17.5527C12.3278 17.5527 12.5946 17.8136 12.5946 18.1357V19.417C12.5946 19.7389 12.3278 19.9999 11.9985 19.9999Z" fill="currentColor"/><path d="M17.4622 9.566C17.2542 9.566 17.0521 9.45936 16.9424 9.26936C16.7805 8.98917 16.8816 8.63309 17.1685 8.47474L18.3093 7.84492C18.5959 7.68658 18.9598 7.78585 19.1216 8.06604C19.2835 8.34634 19.1822 8.70231 18.8954 8.86065L17.7549 9.49035C17.662 9.54172 17.5614 9.56601 17.4622 9.56601L17.4622 9.566Z" fill="currentColor"/><path d="M5.39748 16.2299C5.18964 16.2299 4.98723 16.1233 4.87771 15.9333C4.71615 15.6528 4.8173 15.2971 5.10392 15.1387L6.24476 14.509C6.53196 14.3506 6.89536 14.4497 7.05703 14.7301C7.21871 15.0107 7.11768 15.3664 6.83094 15.5248L5.69011 16.1545C5.59743 16.2059 5.49699 16.2299 5.39748 16.2299L5.39748 16.2299Z" fill="currentColor"/><path d="M6.5373 9.56614C6.43803 9.56614 6.33723 9.54207 6.24491 9.49083L5.10408 8.86101C4.81746 8.70266 4.71595 8.34703 4.87787 8.06639C5.03978 7.7862 5.40319 7.68682 5.69039 7.84528L6.83122 8.4751C7.11784 8.6331 7.2191 8.98908 7.05731 9.26948C6.94745 9.45927 6.74549 9.56612 6.5373 9.56612L6.5373 9.56614Z" fill="currentColor"/><path d="M18.6019 16.23C18.5026 16.23 18.4017 16.2059 18.3094 16.1547L17.1683 15.5246C16.8818 15.3666 16.7804 15.0109 16.9424 14.7302C17.1041 14.4499 17.4676 14.3505 17.7547 14.5091L18.8958 15.1386C19.1823 15.2971 19.2839 15.6527 19.1216 15.9332C19.0122 16.1235 18.8104 16.23 18.6019 16.23L18.6019 16.23Z" fill="currentColor"/><path d="M12.0001 8C9.79087 8 8 9.79092 8 11.9999C8 14.2091 9.79092 16 12.0001 16C14.2093 16 16 14.2091 16 11.9999C16 9.79082 14.2093 8 12.0001 8ZM14.8046 12.0341C14.7918 12.0357 14.779 12.0365 14.7665 12.0365C14.6205 12.0365 14.4934 11.928 14.4742 11.7791C14.315 10.5433 13.2989 9.5688 12.0576 9.46186C11.8954 9.448 11.775 9.30516 11.7892 9.14266C11.803 8.98045 11.9456 8.86054 12.1083 8.87401C13.624 9.00441 14.8653 10.194 15.0595 11.7033C15.0802 11.8655 14.9661 12.0134 14.8045 12.0341L14.8046 12.0341Z" fill="currentColor"/></svg>
+					<svg class="moon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19.9988 12.7929C19.7929 14.8157 18.8262 16.6847 17.2944 18.0217C15.7627 19.3589 13.7801 20.0643 11.748 19.9954C9.71586 19.9264 7.78568 19.0882 6.34823 17.6503C4.91061 16.2123 4.07298 14.2819 4.00453 12.2498C3.93622 10.2177 4.64221 8.23563 5.97991 6.70424C7.31762 5.17302 9.18701 4.20693 11.2099 4.00162C11.3338 3.98788 11.4503 4.06281 11.4891 4.1812C11.528 4.29959 11.4784 4.42897 11.3705 4.49129C10.3319 5.11046 9.50713 6.03188 9.00645 7.13234C8.50577 8.23295 8.35301 9.46007 8.56859 10.6497C8.78428 11.8394 9.35801 12.9349 10.2132 13.7897C11.0683 14.6445 12.1641 15.2179 13.3539 15.4331C14.5437 15.6484 15.7709 15.4952 16.8714 14.9942C17.9718 14.4932 18.893 13.6681 19.5119 12.6294C19.5755 12.5247 19.7029 12.4779 19.8192 12.5162C19.9355 12.5546 20.0099 12.668 19.9989 12.79L19.9988 12.7929Z" fill="currentColor"/></svg>
+				</a>
+			</div>
+		</div>
+
+
+		<div class="col-md-6">
+			<div class="login_innre">
+				<form id="login" method="post">
+					<p class="title"><?php echo $wo['lang']['welcome_']?> 👋</p>
+			
+					<?php if ($wo['config']['user_registration'] == 1): ?>
+    <p class="desc"><?php echo $wo['lang']['connect_wallet_to_register_or_login']?>!</p>
+<?php endif ?>
+
+
+			
+					<?php if ($wo['config']['facebookLogin'] != 0 ||
+                        $wo['config']['googleLogin'] != 0 ||
+                        $wo['config']['twitterLogin'] != 0 ||
+                        $wo['config']['linkedinLogin'] != 0 ||
+                        $wo['config']['VkontakteLogin'] != 0 ||
+                        $wo['config']['instagramLogin'] != 0 ||
+                        $wo['config']['qqLogin'] != 0 ||
+                        $wo['config']['WeChatLogin'] != 0 ||
+                        $wo['config']['DiscordLogin'] != 0 ||
+                        $wo['config']['MailruLogin'] != 0 ||
+                        $wo['config']['OkLogin'] != 0 ||
+                        $wo['config']['googleLogin'] != 0 ||
+                        $wo['config']['tiktok_login'] != 0
+                     ) { 
+					 ?>
+						<div class="social_btns">
+							<?php if($wo['config']['googleLogin'] != 0): ?>
+								<div id="buttonDiv"></div> 
+							<?php endif; ?>
+				
+							<?php if($wo['config']['facebookLogin'] != 0): ?>
+								<a href="<?php echo $wo['facebookLoginUrl']?>" class="btn no_padd <?php if($wo['config']['googleLogin'] == 0): ?>full<?php endif; ?>">
+									<svg viewBox="0 0 36 36" fill="url(#jsc_s_d)" height="512" width="512"><defs><linearGradient x1="50%" x2="50%" y1="97.0782153%" y2="0%" id="jsc_s_d"><stop offset="0%" stop-color="#0062E0"></stop><stop offset="100%" stop-color="#19AFFF"></stop></linearGradient></defs><path d="M15 35.8C6.5 34.3 0 26.9 0 18 0 8.1 8.1 0 18 0s18 8.1 18 18c0 8.9-6.5 16.3-15 17.8l-1-.8h-4l-1 .8z"></path><path fill="#fff" d="M25 23l.8-5H21v-3.5c0-1.4.5-2.5 2.7-2.5H26V7.4c-1.3-.2-2.7-.4-4-.4-4.1 0-7 2.5-7 7v4h-4.5v5H15v12.7c1 .2 2 .3 3 .3s2-.1 3-.3V23h4z"></path></svg> <span><?php echo $wo['lang']['login_with']?> <?php echo $wo['lang']['facebook']?></span>
+								</a>
+							<?php endif; ?>
+							<?php if($wo['config']['twitterLogin'] != 0): ?>
+								<a href="<?php echo $wo['twitterLoginUrl']?>" class="btn no_padd">
+									<svg height="512" viewBox="0 0 152 152" width="512" xmlns="http://www.w3.org/2000/svg"><g data-name="Layer 2"><g id="_02.twitter" data-name="02.twitter"><circle id="background" cx="76" cy="76" fill="#00a6de" r="76"/><path id="icon" d="m113.85 53a32.09 32.09 0 0 1 -6.51 7.15 2.78 2.78 0 0 0 -1 2.17v.25a45.58 45.58 0 0 1 -2.94 15.86 46.45 46.45 0 0 1 -8.65 14.5 42.73 42.73 0 0 1 -18.75 12.39 46.9 46.9 0 0 1 -14.74 2.29 45 45 0 0 1 -22.6-6.09 1.3 1.3 0 0 1 -.62-1.44 1.25 1.25 0 0 1 1.22-.94h1.9a30.24 30.24 0 0 0 16.94-5.14 16.42 16.42 0 0 1 -13-11.16.86.86 0 0 1 1-1.11 15.08 15.08 0 0 0 2.76.26h.35a16.43 16.43 0 0 1 -9.57-15.11.86.86 0 0 1 1.27-.75 14.44 14.44 0 0 0 3.74 1.45 16.42 16.42 0 0 1 -2.65-19.92.86.86 0 0 1 1.41-.12 42.93 42.93 0 0 0 29.51 15.78h.08a.62.62 0 0 0 .6-.67 17.36 17.36 0 0 1 .38-6 15.91 15.91 0 0 1 10.7-11.44 17.59 17.59 0 0 1 5.19-.8 16.36 16.36 0 0 1 10.84 4.09 2.12 2.12 0 0 0 1.41.54 2.15 2.15 0 0 0 .5-.07 30 30 0 0 0 8-3.31.85.85 0 0 1 1.25 1 16.23 16.23 0 0 1 -4.31 6.87 30.2 30.2 0 0 0 5.24-1.77.86.86 0 0 1 1.05 1.24z" fill="#fff"/></g></g></svg>
+								</a>
+							<?php endif; ?>
+							<?php if($wo['config']['linkedinLogin'] != 0): ?>
+								<a href="<?php echo $wo['linkedInLoginUrl']?>" class="btn no_padd">
+									<svg height="512" viewBox="0 0 152 152" width="512" xmlns="http://www.w3.org/2000/svg"><g data-name="Layer 2"><g id="_10.linkedin" data-name="10.linkedin"><circle id="background" cx="76" cy="76" fill="#0b69c7" r="76"/><g id="icon" fill="#fff"><path d="m59 48.37a10.38 10.38 0 1 1 -10.37-10.37 10.38 10.38 0 0 1 10.37 10.37z"/><rect height="50.93" rx="2.57" width="16.06" x="40.6" y="63.07"/><path d="m113.75 89.47v22.17a2.36 2.36 0 0 1 -2.36 2.36h-11.72a2.36 2.36 0 0 1 -2.36-2.36v-21.48c0-3.21.93-14-8.38-14-7.22 0-8.69 7.42-9 10.75v24.78a2.36 2.36 0 0 1 -2.34 2.31h-11.34a2.35 2.35 0 0 1 -2.36-2.36v-46.2a2.36 2.36 0 0 1 2.36-2.37h11.34a2.37 2.37 0 0 1 2.41 2.37v4c2.68-4 6.66-7.12 15.13-7.12 18.73-.01 18.62 17.52 18.62 27.15z"/></g></g></g></svg>
+								</a>
+							<?php endif; ?>
+							<?php if($wo['config']['VkontakteLogin'] != 0): ?>
+								<a href="<?php echo $wo['VkontakteLoginUrl']?>" class="btn no_padd">
+									<svg height="512" viewBox="0 0 152 152" width="512" xmlns="http://www.w3.org/2000/svg"><g data-name="Layer 2"><g id="_19.vk" data-name="19.vk"><circle id="background" cx="76" cy="76" fill="#4065d6" r="76"/><path id="icon" d="m111.05 97.72c-1.78.25-10.43 0-10.88 0a8.51 8.51 0 0 1 -6-2.39c-1.83-1.76-3.48-3.7-5.23-5.53a15.73 15.73 0 0 0 -1.71-1.55c-1.43-1.09-2.84-.84-3.51.84a31.9 31.9 0 0 0 -1.08 5.57 3 3 0 0 1 -3.11 2.88c-1.18.06-2.36.09-3.53.06a27 27 0 0 1 -12.23-3 33.45 33.45 0 0 1 -10.45-9.14 110.55 110.55 0 0 1 -11.58-19c-.17-.34-3.54-7.51-3.62-7.84a2 2 0 0 1 .93-2.6c.6-.23 11.71 0 11.89 0a3.88 3.88 0 0 1 3.73 2.69 58 58 0 0 0 8.33 14.58 7.8 7.8 0 0 0 1.69 1.55 1.28 1.28 0 0 0 2.14-.65 18.29 18.29 0 0 0 .77-4.45c.06-3 0-5-.17-8a3.89 3.89 0 0 0 -3.61-4.11c-.88-.15-1-.87-.39-1.59 1.17-1.49 2.79-1.73 4.55-1.82 2.66-.15 5.33 0 8 0h.58a17.15 17.15 0 0 1 3.49.35 3.18 3.18 0 0 1 2.53 2.84 11.73 11.73 0 0 1 .18 2.29c-.07 3.27-.23 6.54-.27 9.82a17.84 17.84 0 0 0 .35 3.86c.39 1.74 1.58 2.18 2.8.91a44 44 0 0 0 4.17-5.22 52.08 52.08 0 0 0 5.54-10.75c.77-1.94 1.36-2.37 3.45-2.37h11.79a7 7 0 0 1 2.08.28 1.8 1.8 0 0 1 1.24 2.32 19.55 19.55 0 0 1 -3.48 6.9c-2.4 3.39-4.92 6.7-7.38 10a12.72 12.72 0 0 0 -.85 1.35c-.92 1.66-.85 2.6.48 4 2.14 2.2 4.43 4.27 6.49 6.53a38.34 38.34 0 0 1 4.1 5.31c1.52 2.44.59 4.68-2.22 5.08z" fill="#fff"/></g></g></svg>
+								</a>
+							<?php endif; ?>
+							<?php if($wo['config']['instagramLogin'] != 0): ?>
+								<a href="<?php echo $wo['instagramLoginUrl']?>" class="btn no_padd">
+									<svg height="512" viewBox="0 0 152 152" width="512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><linearGradient id="linear-gradientt" gradientUnits="userSpaceOnUse" x1="76" x2="76" y1="151.3" y2="10.3"><stop offset="0" stop-color="#e09b3d"/><stop offset=".24" stop-color="#c74c4d"/><stop offset=".65" stop-color="#c21975"/><stop offset="1" stop-color="#7024c4"/></linearGradient><g data-name="Layer 2"><g id="_05.instagram" data-name="05.instagram"><circle id="background" cx="76" cy="76" fill="url(#linear-gradientt)" r="76"/><g id="icon" fill="#fff"><path d="m91.36 38h-30.72a22.67 22.67 0 0 0 -22.64 22.64v30.72a22.67 22.67 0 0 0 22.64 22.64h30.72a22.66 22.66 0 0 0 22.64-22.64v-30.72a22.67 22.67 0 0 0 -22.64-22.64zm15 53.36a15 15 0 0 1 -15 15h-30.72a15 15 0 0 1 -15-15v-30.72a15 15 0 0 1 15-15h30.72a15 15 0 0 1 15 15z"/><path d="m76 56.35a19.66 19.66 0 1 0 19.65 19.65 19.67 19.67 0 0 0 -19.65-19.65zm0 31.65a12 12 0 1 1 12-12 12 12 0 0 1 -12 12z"/><circle cx="95.77" cy="56.35" r="4.86"/></g></g></g></svg>
+								</a>
+							<?php endif; ?>
+							<?php if($wo['config']['qqLogin'] != 0): ?>
+								<a href="<?php echo $wo['QQLoginUrl']?>" class="btn btn-instagram btn-qq">
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98.802 98.803" fill="currentColor"> <g> <g> <path d="M95.568,57.454c-1.74-4.367-3.976-8.49-6.733-12.316c-0.295-0.408-0.602-0.729-0.329-1.404 c1.326-3.281,0.896-6.463-0.798-9.515c-0.763-1.376-1.668-2.684-1.755-4.342c-0.127-2.393-0.734-4.692-1.356-6.994 c-2.17-8.031-6.494-14.449-13.937-18.479c-4.224-2.287-8.764-3.589-13.545-4.115C52.19-0.253,47.321-0.04,42.472,0.987 c-8.02,1.701-13.92,6.429-18.489,12.984c-3.001,4.308-5.137,8.993-5.776,14.3c-0.123,1.021,0.25,2.146-0.41,3.085 c-0.573,0.812-0.9,1.724-1.063,2.675c-0.245,1.425-0.573,2.778-1.304,4.073c-0.888,1.57-1.127,3.374-0.764,5.138 c0.157,0.758-0.005,1.153-0.531,1.548c-3.109,2.327-5.68,5.131-7.84,8.373c-3.077,4.616-4.894,9.619-5.189,15.16 c-0.119,2.225,0.15,4.398,0.933,6.505c0.379,1.02,0.88,1.498,2.084,1.148c1.013-0.293,1.878-0.748,2.645-1.423 c1.6-1.404,2.905-3.04,3.769-5.004c0.1-0.228,0.074-0.579,0.439-0.561c0.332,0.016,0.363,0.306,0.42,0.573 c0.518,2.398,1.633,4.556,2.829,6.659c1.276,2.247,3.105,4.056,5.017,5.75c0.667,0.592,1.614,0.868,1.987,1.871 c-1.38-0.002-2.656,0.194-3.863,0.609c-2.062,0.711-3.895,1.764-4.372,4.145c-0.456,2.275-0.613,4.522,1.467,6.206 c0.823,0.666,1.734,1.195,2.716,1.614c3.463,1.477,7.142,1.956,10.837,2.194c4.568,0.294,9.156,0.404,13.635-0.838 c2.596-0.722,4.999-1.891,7.251-3.366c0.213-0.14,0.354-0.46,0.658-0.372c1.79,0.518,3.677-0.02,5.49,0.687 c2.91,1.136,5.917,2.001,9.02,2.501c4.605,0.744,9.227,1.093,13.874,0.502c3.149-0.401,6.235-1.094,8.993-2.768 c3.546-2.153,3.654-5.891,0.326-8.31c-1.64-1.192-3.38-2.186-5.205-3.05c-0.472-0.223-0.991-0.376-1.364-0.893 c3.672-3.374,5.523-7.843,7.374-12.409c1.054,1.952,2.08,3.805,3.441,5.433c1.449,1.731,2.711,1.69,4.132-0.04 c0.566-0.69,0.981-1.451,1.239-2.315C98.51,67.896,97.619,62.604,95.568,57.454z M55.018,22.695 c-0.062-2.094,0.374-4.126,1.512-5.984c2.2-3.594,5.927-3.671,8.122-0.082c1.899,3.109,1.954,7.003,0.982,10.438 c-0.47,1.66-1.153,3.151-2.801,3.994c-2.239,1.145-4.307,0.692-5.812-1.331C55.482,27.662,54.927,25.299,55.018,22.695z M40.416,15.943c2.095-2.708,5.158-2.722,7.237-0.017c1.574,2.05,2.052,4.435,2.091,7.159c-0.076,2.407-0.588,4.892-2.398,6.899 c-2.086,2.315-4.877,2.194-6.817-0.231C37.729,26.254,37.674,19.486,40.416,15.943z M31.089,39.146 c3.005-2.065,6.387-3.264,9.902-4.027c7.729-1.682,15.478-1.892,23.2,0.086c3.134,0.803,6.169,1.89,8.897,3.668 c1.692,1.104,1.673,1.513-0.021,2.552c-1.81,1.109-3.694,2.027-6.063,2.02c0.854-0.947,1.935-1.479,2.597-2.923 c-11.517,7.921-22.792,8.559-34.122,0.353c0.501,0.808,1.002,1.614,1.618,2.606c-2.195-0.55-4.16-1.071-5.952-2.04 C29.729,40.672,29.748,40.068,31.089,39.146z M45.498,94.378c-1.388,1.356-3.231,1.805-4.997,2.193 c-6.68,1.475-13.408,1.794-20.09,0.042c-2.074-0.543-4.159-1.262-5.741-2.864c-1.172-1.185-1.151-2.205,0.02-3.421 c0.726-0.755,1.572-1.359,2.358-2.14c-0.603,0.107-1.211,0.196-1.808,0.337c-0.297,0.069-0.646,0.303-0.824-0.039 c-0.122-0.235-0.103-0.648,0.025-0.892c0.29-0.544,0.689-1.041,1.236-1.357c0.763-0.443,1.53-0.892,2.332-1.255 c1.908-0.865,3.584-0.936,5.472,0.514c3.637,2.791,7.861,4.532,12.245,5.885c3.109,0.96,6.28,1.586,9.487,2.072 c0.244,0.038,0.583-0.093,0.711,0.2C46.091,94.035,45.705,94.175,45.498,94.378z M81.455,84.153 c1.248,0.611,2.564,1.141,4.022,2.31c-1.181,0.092-2.198,0.127-3.067,0.681c-0.171,0.106-0.416,0.311-0.405,0.454 c0.028,0.373,0.373,0.263,0.621,0.262c1.151-0.001,2.304-0.059,3.452,0.001c2.125,0.109,3.197,1.731,2.403,3.692 c-1.039,2.568-3.396,3.5-5.763,4.248c-7.481,2.366-14.902,1.625-22.27-0.625c-0.812-0.249-1.776-0.215-2.169-1.324 c7.716-1.221,14.533-4.239,20.361-9.354C79.717,83.552,80.247,83.559,81.455,84.153z M84.223,68.128 c-0.26,4.43-1.97,8.329-4.652,11.788c-5.173,6.673-11.993,10.796-20.188,12.656c-3.104,0.706-6.256,0.349-9.376,0.045 c-4.791-0.465-9.515-1.327-13.972-3.219c-2.77-1.177-5.435-2.546-7.813-4.473c-4.629-3.753-8.246-8.165-9.446-14.146 c-1.086-5.412-0.645-10.715,1.674-15.791c0.164-0.358,0.373-0.696,0.543-1.052c0.414-0.856,0.823-1.223,1.793-0.484 c1.042,0.791,2.265,1.348,3.431,1.966c0.447,0.237,0.563,0.432,0.49,1.003c-0.504,4.039-0.938,8.08-0.483,12.171 c0.272,2.438,1.731,3.976,3.747,4.851c2.783,1.207,5.785,1.057,8.735,0.577c1.204-0.195,2.569-1.76,2.516-3.548l-0.192-8.102 l-0.069-1.684c3.209,0.899,6.507,1.185,9.782,1.263c7.792,0.186,15.094-1.702,22.083-5.021c2.072-0.983,4.073-2.088,5.977-3.359 c0.473-0.315,0.655-0.347,1.007,0.171C82.755,58.09,84.538,62.793,84.223,68.128z M36.888,64.798l-0.091-3.047 c0.059-0.565-0.266-1.596,0.643-1.748c1.124-0.188,2.169,0.613,2.277,1.747c0.269,2.827,0.451,5.684,0.349,8.552 c-0.049,1.381-0.726,2.211-2.281,2.291c-2.221,0.117-4.431,0.192-6.611-0.293c-3.059-0.683-4.14-2.181-4.231-5.647 c-0.087-3.265,0.691-6.405,1.279-9.576c0.094-0.508,0.288-0.49,0.706-0.312c1.94,0.832,3.841,1.771,5.895,2.308 c0.619,0.161,0.524,0.587,0.541,1.025c0.076,2.042,0.341,4.055,1.032,5.99c0.113,0.316,0.279,0.617,0.525,1.172L36.888,64.798z M87.863,41.959c-0.713,3.928-2.98,6.794-6.25,8.828c-6.996,4.354-14.417,7.735-22.591,9.235 c-4.74,0.869-9.478,0.834-14.262,0.222c-5.7-0.728-11.113-2.364-16.314-4.708c-4.34-1.956-8.464-4.3-11.461-8.165 c-2.191-2.824-2.488-5.776-0.475-8.403c0.613,3.759,2.714,6.468,5.648,8.647c-1.113-1.906-2.246-3.8-3.333-5.72 c-1.16-2.046-1.057-4.28-0.949-6.513c0.127-0.013,0.255-0.054,0.276-0.023c3.985,5.908,9.673,9.502,16.248,11.818 c8.313,2.933,16.929,3.846,25.633,2.862c8.854-1,16.799-4.403,23.481-10.46c0.426-0.385,0.882-0.734,1.218-1.014 c-1.527,6.333-6.051,10.371-11.515,13.634c7.514-2.716,11.403-8.663,14.022-15.749C88.027,37.638,88.234,39.91,87.863,41.959z"/> <path d="M57.824,24.385c0.522,0.103,0.59-0.406,0.691-0.783c0.194-0.719,0.302-1.658,1.196-1.672 c0.82-0.011,0.854,0.921,0.957,1.529c0.082,0.484,0.37,0.993,0.901,0.919c0.674-0.094,0.597-3.508-1.134-4.097 c-1.595-0.601-3.162,0.939-3.122,3.106C57.321,23.776,57.325,24.288,57.824,24.385z"/> <path d="M46.776,26.242c0.833,0.062,1.306-0.495,1.617-1.142c0.776-1.614,0.754-3.243-0.183-4.788 c-0.681-1.121-1.811-1.173-2.591-0.158c-0.619,0.805-0.779,1.753-0.757,2.742c0.015,0.705,0.073,1.401,0.379,2.056 C45.552,25.621,45.975,26.179,46.776,26.242z"/> </g> </g></svg>
+								</a>
+							<?php endif; ?>
+							<?php if($wo['config']['WeChatLogin'] != 0): ?>
+								<a href="<?php echo $wo['WeChatLoginUrl']?>" class="btn no_padd">
+									<svg height="512" viewBox="0 0 152 152" width="512" xmlns="http://www.w3.org/2000/svg"><g data-name="Layer 2"><g id="_35.we_chat" data-name="35.we chat"><circle id="background" cx="76" cy="76" fill="#31d100" r="76"/><g id="icon" fill="#fff"><path d="m102.74 68.41c-20.21-10.28-43.18 8.59-32.67 25.9 4.87 8.13 16.13 13.26 29.44 9.41 2.67 1 5 2.71 7.62 4-.66-2.24-1.38-4.46-2.14-6.67 13.77-9.81 10.75-26-2.25-32.59zm-16.13 11.67a3.12 3.12 0 1 1 -4-4 3.14 3.14 0 0 1 4 4zm15.12.29a3.17 3.17 0 0 1 -5 .86 4.84 4.84 0 0 1 -1.09-2.32c.33-1.46 1.33-3 3-3a3.18 3.18 0 0 1 3.08 4.49z"/><path d="m93.14 64.17a24.06 24.06 0 0 0 -12.14-15.82h.09c-21.2-12-47.59 4.73-42.49 24.43 1.4 5.85 5.45 10.75 10.4 14.02q-1.43 4-2.71 8.11c3.09-1.62 6.17-3.31 9.26-5a34.26 34.26 0 0 0 11.54 1.69c-4.87-14 7.61-28.74 26.05-27.43zm-19.23-8.1a3.9 3.9 0 0 1 5.23 3.76c0 3.05-4 5-6.31 2.89a3.92 3.92 0 0 1 1.08-6.65zm-13.91 4.58a3.91 3.91 0 0 1 -6.16 2.15 3.9 3.9 0 1 1 6.16-2.15z"/></g></g></g></svg>
+								</a>
+							<?php endif; ?>
+							<?php if($wo['config']['DiscordLogin'] != 0): ?>
+								<a href="<?php echo $wo['DiscordLoginUrl']?>" class="btn no_padd">
+									<svg height="512" viewBox="0 0 152 152" width="512" xmlns="http://www.w3.org/2000/svg"><g data-name="Layer 2"><g id="_75.discord" data-name="75.discord"><circle id="background" cx="76" cy="76" fill="#5046af" r="76"/><g id="icon" fill="#fff"><path d="m49.34 105.12h45.15l-2.16-7 5.16 4.43 4.73 4.23 8.61 7.2v-68.14a8.4 8.4 0 0 0 -8.38-7.84h-53.1a8.08 8.08 0 0 0 -8.18 7.84v51.44a7.92 7.92 0 0 0 8.17 7.84zm33.4-49.12h-.11zm-24.17 4a19.59 19.59 0 0 1 11.19-4l.43.43c-7.1 1.69-10.32 4.87-10.32 4.87s.86-.42 2.36-1.07a36.15 36.15 0 0 1 29.69 1.27s-3.23-3-9.89-4.87l.59-.58a19.48 19.48 0 0 1 11 4 48.9 48.9 0 0 1 5.84 22.23c-.18-.28-3.61 5.27-12.46 5.46 0 0-1.49-1.7-2.56-3.17 5.17-1.48 7.1-4.45 7.1-4.45a47.71 47.71 0 0 1 -4.5 2.34 30.06 30.06 0 0 1 -5.78 1.69c-9.14 1.48-14.26-1-19.11-3l-1.65-.85s1.92 3 6.88 4.45c-1.28 1.53-2.57 3.25-2.57 3.25-8.82-.21-12-5.72-12-5.72a49 49 0 0 1 5.76-22.28z"/><path d="m83.31 78.44a4.24 4.24 0 0 0 0-8.47 4.23 4.23 0 0 0 0 8.46z"/><path d="m68.69 78.44a4.24 4.24 0 0 0 0-8.47 4.23 4.23 0 0 0 0 8.46z"/></g></g></g></svg>
+								</a>
+							<?php endif; ?>
+							<?php if($wo['config']['MailruLogin'] != 0): ?>
+								<a href="<?php echo $wo['MailruLoginUrl']?>" class="btn btn-instagram btn-mailru"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12,15C12.81,15 13.5,14.7 14.11,14.11C14.7,13.5 15,12.81 15,12C15,11.19 14.7,10.5 14.11,9.89C13.5,9.3 12.81,9 12,9C11.19,9 10.5,9.3 9.89,9.89C9.3,10.5 9,11.19 9,12C9,12.81 9.3,13.5 9.89,14.11C10.5,14.7 11.19,15 12,15M12,2C14.75,2 17.1,3 19.05,4.95C21,6.9 22,9.25 22,12V13.45C22,14.45 21.65,15.3 21,16C20.3,16.67 19.5,17 18.5,17C17.3,17 16.31,16.5 15.56,15.5C14.56,16.5 13.38,17 12,17C10.63,17 9.45,16.5 8.46,15.54C7.5,14.55 7,13.38 7,12C7,10.63 7.5,9.45 8.46,8.46C9.45,7.5 10.63,7 12,7C13.38,7 14.55,7.5 15.54,8.46C16.5,9.45 17,10.63 17,12V13.45C17,13.86 17.16,14.22 17.46,14.53C17.76,14.84 18.11,15 18.5,15C18.92,15 19.27,14.84 19.57,14.53C19.87,14.22 20,13.86 20,13.45V12C20,9.81 19.23,7.93 17.65,6.35C16.07,4.77 14.19,4 12,4C9.81,4 7.93,4.77 6.35,6.35C4.77,7.93 4,9.81 4,12C4,14.19 4.77,16.07 6.35,17.65C7.93,19.23 9.81,20 12,20H17V22H12C9.25,22 6.9,21 4.95,19.05C3,17.1 2,14.75 2,12C2,9.25 3,6.9 4.95,4.95C6.9,3 9.25,2 12,2Z"></path></svg></a>
+							<?php endif; ?>
+							<?php if($wo['config']['OkLogin'] != 0): ?>
+								<a href="<?php echo $wo['OkLoginUrl']?>" class="btn btn-instagram btn-ok">
+									<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1"><g id="surface1"><path style=" stroke:none;fill-rule:nonzero;fill:rgb(88.627451%,49.411765%,20.784314%);fill-opacity:1;" d="M 24 12 C 24 24 24 24 12 24 C 0 24 0 24 0 12 C 0 0 0 0 12 0 C 24 0 24 0 24 12 Z M 24 12 "/><path style=" stroke:none;fill-rule:nonzero;fill:rgb(100%,100%,100%);fill-opacity:1;" d="M 13.878906 16.082031 C 14.828125 15.863281 15.738281 15.488281 16.578125 14.960938 C 17.210938 14.5625 17.40625 13.722656 17.003906 13.085938 C 16.601562 12.449219 15.765625 12.253906 15.125 12.65625 C 13.222656 13.855469 10.773438 13.851562 8.871094 12.65625 C 8.234375 12.253906 7.394531 12.449219 6.992188 13.085938 C 6.59375 13.71875 6.785156 14.5625 7.421875 14.960938 C 8.257812 15.488281 9.171875 15.863281 10.117188 16.082031 L 7.523438 18.675781 C 6.992188 19.210938 6.992188 20.070312 7.523438 20.601562 C 7.789062 20.867188 8.136719 21 8.484375 21 C 8.832031 21 9.179688 20.867188 9.449219 20.601562 L 12 18.050781 L 14.550781 20.601562 C 15.085938 21.132812 15.945312 21.132812 16.476562 20.601562 C 17.007812 20.070312 17.007812 19.207031 16.476562 18.675781 L 13.878906 16.082031 M 12 5.722656 C 13.0625 5.722656 13.925781 6.585938 13.925781 7.648438 C 13.925781 8.707031 13.0625 9.570312 12 9.570312 C 10.941406 9.570312 10.074219 8.707031 10.074219 7.648438 C 10.074219 6.585938 10.941406 5.722656 12 5.722656 Z M 12 12.289062 C 14.5625 12.289062 16.644531 10.207031 16.644531 7.648438 C 16.644531 5.082031 14.5625 3 12 3 C 9.4375 3 7.355469 5.082031 7.355469 7.644531 C 7.355469 10.207031 9.4375 12.289062 12 12.289062 Z M 12 12.289062 "/></g></svg>
+								</a>
+							<?php endif; ?>
+							<?php if($wo['config']['tiktok_login'] != 0): ?>
+		                     <a href="<?php echo $wo['TikTokLoginUrl']?>" class="btn btn-tiktok">
+		                        <svg class="feather" viewBox="0 0 512 512" id="icons" xmlns="http://www.w3.org/2000/svg"><path d="M412.19,118.66a109.27,109.27,0,0,1-9.45-5.5,132.87,132.87,0,0,1-24.27-20.62c-18.1-20.71-24.86-41.72-27.35-56.43h.1C349.14,23.9,350,16,350.13,16H267.69V334.78c0,4.28,0,8.51-.18,12.69,0,.52-.05,1-.08,1.56,0,.23,0,.47-.05.71,0,.06,0,.12,0,.18a70,70,0,0,1-35.22,55.56,68.8,68.8,0,0,1-34.11,9c-38.41,0-69.54-31.32-69.54-70s31.13-70,69.54-70a68.9,68.9,0,0,1,21.41,3.39l.1-83.94a153.14,153.14,0,0,0-118,34.52,161.79,161.79,0,0,0-35.3,43.53c-3.48,6-16.61,30.11-18.2,69.24-1,22.21,5.67,45.22,8.85,54.73v.2c2,5.6,9.75,24.71,22.38,40.82A167.53,167.53,0,0,0,115,470.66v-.2l.2.2C155.11,497.78,199.36,496,199.36,496c7.66-.31,33.32,0,62.46-13.81,32.32-15.31,50.72-38.12,50.72-38.12a158.46,158.46,0,0,0,27.64-45.93c7.46-19.61,9.95-43.13,9.95-52.53V176.49c1,.6,14.32,9.41,14.32,9.41s19.19,12.3,49.13,20.31c21.48,5.7,50.42,6.9,50.42,6.9V131.27C453.86,132.37,433.27,129.17,412.19,118.66Z"/></svg>
+		                     </a>
+		                  <?php endif; ?>
+						</div>
+					<?php } ?>
+			
+					<div class="alert alert-danger errors"></div>
+					
+					<div class="login_signup_combo">
+    <div class="login__" style="display: flex; justify-content: center;">
+        <button id="connect-wallet" type="submit" class="btn btn-main btn-mat add_wow_loader" onClick="connectWallet(event)"><?php echo $wo['lang']['login'] ?> With Wallet</button>
+    </div>
+</div>
+
+
+
+					<?php if(!empty( $_GET['last_url'])){?>
+						<div class="form-group"><input type="hidden" name="last_url" value="<?php echo urldecode(Wo_Secure($_GET['last_url']));?>"></div>
+					<?php } ?>
+					
+					<div class="random_users">
+						<?php if ($wo['config']['profile_privacy'] == 1) { ?>
+							<?php echo Wo_LoadPage('welcome/welcome-users-profiles');?>
+						<?php } ?>
+					</div>
+
+               
+
+					<?php if (!empty($wo['config']['native_android_messenger_url']) || !empty($wo['config']['native_android_timeline_url']) || !empty($wo['config']['native_ios_messenger_url']) || !empty($wo['config']['native_ios_timeline_url']) || !empty($wo['config']['native_windows_messenger_url'])) { ?>
+						<div class="wo_side_apps">
+							<?php if (!empty($wo['config']['native_android_timeline_url']) || !empty($wo['config']['native_ios_timeline_url'])) { ?>
+								<p><?php echo $wo['lang']['get_mobile_apps'];?></p>
+								<?php if (!empty($wo['config']['native_android_timeline_url'])) { ?>
+									<a href="<?php echo($wo['config']['native_android_timeline_url']) ?>" target="_blank">
+										<img width="130" src="<?php echo $wo['config']['theme_url'];?>/img/google.png"/>
+									</a>
+								<?php } ?>
+								<?php if (!empty($wo['config']['native_ios_timeline_url'])) { ?>
+									<a href="<?php echo($wo['config']['native_ios_timeline_url']) ?>" target="_blank">
+										<img width="130" src="<?php echo $wo['config']['theme_url'];?>/img/apple.png"/>
+									</a>
+								<?php } ?>
+							<?php } ?>
+							<?php if (!empty($wo['config']['native_android_messenger_url']) || !empty($wo['config']['native_ios_messenger_url']) || !empty($wo['config']['native_windows_messenger_url'])) { ?>
+								<p><?php echo $wo['lang']['get_messenger_apps'];?></p>
+								<?php if (!empty($wo['config']['native_android_messenger_url'])) { ?>
+									<a href="<?php echo($wo['config']['native_android_messenger_url']) ?>" target="_blank">
+										<img width="130" src="<?php echo $wo['config']['theme_url'];?>/img/google.png"/>
+									</a>
+								<?php } ?>
+								<?php if (!empty($wo['config']['native_ios_messenger_url'])) { ?>
+									<a  href="<?php echo($wo['config']['native_ios_messenger_url']) ?>" target="_blank">
+										<img width="130" src="<?php echo $wo['config']['theme_url'];?>/img/apple.png"/>
+									</a>
+								<?php } ?>
+								<?php if (!empty($wo['config']['native_windows_messenger_url'])) { ?>
+									<a href="<?php echo($wo['config']['native_windows_messenger_url']) ?>" target="_blank">
+										<img width="130" src="<?php echo $wo['config']['theme_url'];?>/img/microsoft.png"/>
+									</a>
+								<?php } ?>
+							<?php } ?>
+						</div>
+					<?php } ?>
+				</form>
+
+				
+				<div class="footer">
+					<?php echo Wo_LoadPage('footer/welcome');?>
+					<div class="clearfix"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<?php // Script for ethers.js and connect to wallet function 
+?>
+<!-- ethereum api -->
+<script src="https://cdn.ethers.io/lib/ethers-5.4.umd.min.js"></script>
+<!-- axios -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // New fetch with retry function
+	async function fetchWithRetry(url, options, retryCount = 3) {
+		const response = await fetch(url, options);
+		if (response.status === 429 && retryCount > 0) {
+			await new Promise(resolve => setTimeout(resolve, 1000));
+			return fetchWithRetry(url, options, retryCount - 1);
+		}
+		return response;
+	}
+	/******************************************* OnClick function for NFT Token Gating *****************************************/
+	async function connectWallet() {
+
+		/******************************************* ether js - rpc using Infura (Sepolia network) *****************************************/
+		const {
+			ethers
+		} = window;
+		const provider = new ethers.providers.JsonRpcProvider("https://mainnet.infura.io/v3/42cb9984b84344e1a2be8a1e0a37b233");
+
+		try {
+
+			/******************************************* Button text update I *****************************************/
+			const connectButton = document.getElementById('connect-wallet');
+			connectButton.innerText = 'Checking For Access...';
+			event.preventDefault();
+
+			/******************************************* Connect to Wallet *****************************************/
+			const accounts = await ethereum.request({
+				method: 'eth_requestAccounts'
+			});
+			const signer = provider.getSigner(accounts[0]);
+			console.log("Connected to wallet:", accounts[0]);
+
+			/******************************************* Alchemy - api Key - walletAddress - whitelistedCommunity *****************************************/
+
+			const apiKey = "cs8cCGIpsItwDklk9ZnvDkmL0gEiID5u";
+			// wallet address drawn from metamask, can be hardcoded for testing     
+			 const walletAddress = accounts[0];
+			// 0xEDd681843C9dAE75D6D066b653dd8c030208eBfc for testing
+			// More communities can be added
+			const communityAddresses = [
+            "0x42de23cc51A8425C248C9801395DD47BD1996152", 
+            "0xc2e4e5e85df6f47e57be96005095c525b0855e20", 
+            "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
+            "0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb",
+            "0x60e4d786628fea6478f785a6d7e704777c86a7c6",
+            "0xed5af388653567af2f388e6224dc7c4b3241c544",
+            "0x49cf6f5d44e70224e2e23fdcdd2c053f30ada28b",
+            "0x23581767a106ae21c074b2276d25e5c3e136a68b",
+            "0x8a90cab2b38dba80c64b7734e58ee1db38b8992e",
+            "0xbd3531da5cf5857e7cfaa92426877b022e612cf8",
+            "0x7bd29408f11d2bfc23c34f18275bbf23bb716bc7",
+            "0x1A92f7381B9F03921564a437210bB9396471050C",
+            "0x31d843b99c2c4088cd20d96ef2426673b958ff70",
+            "0xe785e82358879f061bc3dcac6f0444462d4b5330",
+            "0x3bf2922f4520a8BA0c2eFC3D2a1539678DaD5e9D",
+            "0xFF9C1b15B16263C61d017ee9F65C50e4AE0113D7",
+            "0x1CB1A5e65610AEFF2551A50f76a87a7d3fB649C6",
+            "0x5Af0D9827E0c53E4799BB226655A1de152A425a5",
+            "0x79FCDEF22feeD20eDDacbB2587640e45491b757f",
+            "0xa3AEe8BcE55BEeA1951EF834b99f3Ac60d1ABeeB",
+            "0x8c6dEf540b83471664Edc6d5Cf75883986932674",
+            "0x59468516a8259058baD1cA5F8f4BFF190d30E066",
+            "0x394E3d3044fC89fCDd966D3cb35Ac0B32B0Cda91",
+            "0x769272677faB02575E84945F03Eca517ACc544Cc",
+            "0x160C404B2b49CBC3240055CEaEE026df1e8497A0",
+            "0xCcc441ac31f02cD96C153DB6fd5Fe0a2F4e6A68d",
+            "0x1792a96E5668ad7C167ab804a100ce42395Ce54D",
+            "0x39ee2c7b3cb80254225884ca001F57118C8f21B6",
+            "0xd774557b647330C91Bf44cfEAB205095f7E6c367",
+            "0x5946aeAAB44e65Eb370FFaa6a7EF2218Cff9b47D",
+            "0xB852c6b5892256C264Cc2C888eA462189154D8d7",
+            "0x0c2E57EFddbA8c768147D1fdF9176a0A6EBd5d83",
+            "0x8943C7bAC1914C9A7ABa750Bf2B6B09Fd21037E0",
+            "0x364C828eE171616a39897688A831c2499aD972ec",
+            "0xf61F24c2d93bF2dE187546B14425BF631F28d6dC",
+            "0x123b30E25973FeCd8354dd5f41Cc45A3065eF88C",
+            "0xd1258DB6Ac08eB0e625B75b371C023dA478E94A9",
+            "0x75E95ba5997Eb235F40eCF8347cDb11F18ff640B",
+            "0xEdB61f74B0d09B2558F1eeb79B247c1F363Ae452",
+            "0x7D8820FA92EB1584636f4F5b8515B5476B75171a",
+            "0x4D7d2e237D64d1484660b55c0A4cC092fa5e6716",
+            "0xc99c679C50033Bbc5321EB88752E89a93e9e83C5",
+            "0x524cAB2ec69124574082676e6F654a18df49A048",
+            "0x960b7a6BCD451c9968473f7bbFd9Be826EFd549A",
+            "0x77372a4cc66063575b05b44481F059BE356964A4",
+            "0x6dc6001535e15b9def7b0f6A20a2111dFA9454E2",
+            "0x521f9C7505005CFA19A8E5786a9c3c9c9F5e6f42",
+            "0x42069ABFE407C60cf4ae4112bEDEaD391dBa1cdB",
+            "0x716F29B8972D551294d9E02B3eb0fC1107FbF4aA",
+            "0x11450058d796B02EB53e65374be59cFf65d3FE7f",
+            "0x209e639a0EC166Ac7a1A4bA41968fa967dB30221",
+            "0xaCF63E56fd08970b43401492a02F6F38B6635C91",
+            "0xD3D9ddd0CF0A5F0BFB8f7fcEAe075DF687eAEBaB",
+            "0xEb2dFC54EbaFcA8F50eFcc1e21A9D100b5AEb349",
+            "0x59325733eb952a92e069C87F0A6168b29E80627f",
+            "0x495f947276749Ce646f68AC8c248420045cb7b5e",
+            "0xf729f878F95548BC7F14B127c96089cf121505F8",
+            "0x572E33FFa523865791aB1C26B42a86aC244Df784",
+            "0x354634c4621cDfb7a25E6486cCA1E019777D841B",
+            "0xC379e535CaFf250a01CAa6C3724Ed1359Fe5c29B",
+            "0x2079812353E2C9409a788FBF5f383fa62aD85bE8",
+            "0x2Cf6BE9AaC1c7630d5A23af88c28275C70eb8819",
+            "0xbDdE08BD57e5C9fD563eE7aC61618CB2ECdc0ce0",
+            "0x64a1C0937728d8d2fA8Cd81Ef61a9c860B7362Db",
+            "0x86CC280D0BAC0BD4Ea38ba7d31e895Aa20Cceb4b",
+            "0xC9d198089D6c31d0Ca5Cc5B92C97a57A97BBfdE2",
+            "0x3fD36d72f05fb1AF76EE7Ce9257ca850fAbA91ed",
+            "0x32BB5a147b5371Fd901Aa4a72B7F82c58A87e36d",
+            "0x12787526c03d626AAc88E6EDc4d0Fb930d86C631",
+            "0x10cDcb5a80e888ec9e9154439e86b911f684Da7B",
+            "0xf07468eAd8cf26c752C676E43C814FEe9c8CF402",
+            "0xb4a7d131436ed8EC06aD696FA3BF8d23C0aB3Acf",
+            "0xC589770757cD0d372c54568BF7e5E1d56b958015",
+            "0xEeca64ea9fCf99A22806Cd99b3d29cf6e8D54925",
+            "0x28cE223853D123b52C74439B10b43366d73Fd3B5",
+            "0x77654e7E579b3C817a3672C1c66c050058b92B85",
+            "0xCCC1825cF04CAe4d497B202D1434Ec0f79eE535f",
+            "0xE1B81CD6A494CBCA06a8e2055A62C2Cf0fa5A8ac",
+            "0xCE17F8Ef13cf67dA6EAb86e31360102eEA8609Ff",
+            "0x8fc0d90f2c45a5e7f94904075c952e0943cfccfd",
+            "0x749f5ddf5ab4c1f26f74560a78300563c34b417d",
+            "0xb4e570232d3e55d2ee850047639dc74da83c7067",
+            "0x69dAFb15ae5d8fA732829C64Fd330eBFAa25B0e4",
+            "0xe1dC516B1486Aba548eecD2947A11273518434a4",
+            "0xF192502dC0a01728955a82a5B84631Bf719c8Ee2",
+            "0x7CB90567a118cd9F6CA326067A0813b289bdCb54",
+            "0x7DF64F69544c5bf71171dc5ab69b8602C2FF1E27",
+            "0x8F17a839B6cd38E9888BE3Cc901a6726e84d6462",
+            "0x138A5C693279b6Cd82F48d4bEf563251Bc15ADcE",
+            "0x5c2C9094bB47C6feE89abD4a6126Fb3Fb39dE923",
+            "0x7f29b85834d6A2ba4BB1c64325686C6057B1B3C5",
+            "0x2A549E83C2F58DB1890553e58B4e95fd558b71E2",
+            "0xDfB29501b42f63A947Ddc5249F185D6BcBE6986f",
+            "0x1dC454EE1Fd63F3D792aEee9D331c05D9C62B20A",
+            "0xbF42C1972877F39e102807E5E80ed2ff5D16aa5f",
+            "0x31c6e456832052dbc337E2ac19c41fF37f9903A0",
+            "0xA23a9e6002Cebb284E1797be6E0Cad201d13C2F2",
+            "0x45C596850Ae65Be5CAc889c383424616Bac0f77b",
+            "0x3AfDcC7E3d3Ea09B4251A08A8EFa2a58e182d8C7",
+            "0x6cB07AB81DbB879aE4bf4a0E65230af01925919D",
+            "0x3Fe1a4c1481c8351E91B64D5c398b159dE07cbc5",
+            "0x4Db1f25D3d98600140dfc18dEb7515Be5Bd293Af",
+            "0x059EDD72Cd353dF5106D2B9cC5ab83a52287aC3a",
+            "0x34eEBEE6942d8Def3c125458D1a86e0A897fd6f9",
+            "0x9A534628B4062E123cE7Ee2222ec20B86e16Ca8F",
+            "0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270",
+            "0x28472a58A490c5e09A238847F66A68a47cC76f0f",
+            "0x60bb1e2AA1c9ACAfB4d34F71585D7e959f387769",
+            "0xd2F668a8461D6761115dAF8Aeb3cDf5F40C532C6",
+            "0xC2C747E0F7004F9E8817Db2ca4997657a7746928",
+            "0x892848074ddeA461A15f337250Da3ce55580CA85",
+            "0xc92cedDfb8dd984A89fb494c376f9A48b999aAFc",
+            "0x67D9417C9C3c250f61A83C7e8658daC487B56B09",
+            "0x8821BeE2ba0dF28761AffF119D66390D594CD280",
+            "0x7EA3Cca10668B8346aeC0bf1844A49e995527c8B",
+            "0x7F36182DeE28c45dE6072a34D29855BaE76DBe2f",
+            "0x6632a9d63E142F17a668064D41A21193b49B41a0",
+            "0x08D7C0242953446436F34b4C78Fe9da38c73668d",
+            "0x86C10D10ECa1Fca9DAF87a279ABCcabe0063F247",
+            "0x4b3406a41399c7FD2BA65cbC93697Ad9E7eA61e5",
+            "0x57a204AA1042f6E66DD7730813f4024114d74f37",
+            "0xF4ee95274741437636e748DdAc70818B4ED7d043",
+            "0xb0640E8B5F24beDC63c33d371923D68fDe020303",
+            "0x4b15a9c28034dC83db40CD810001427d3BD7163D",
+            "0xa5C0Bd78D1667c13BFB403E2a3336871396713c5",
+            "0xad9Fd7cB4fC7A0fBCE08d64068f60CbDE22Ed34C",
+            "0xfcB1315C4273954F74Cb16D5b663DBF479EEC62e",
+            "0xB716600Ed99B4710152582a124C697A7Fe78ADBF",
+            "0xaaDc2D4261199ce24A4B0a57370c4FCf43BB60aa",
+            "0x79986aF15539de2db9A5086382daEdA917A9CF0C",
+            "0x4E1f41613c9084FdB9E34E11fAE9412427480e56",
+            "0xc36cF0cFcb5d905B8B513860dB0CFE63F6Cf9F5c",
+            "0xAf615B61448691fC3E4c61AE4F015d6e77b6CCa8",
+            "0x7AB2352b1D2e185560494D5e577F9D3c238b78C5",
+            "0x219B8aB790dECC32444a6600971c7C3718252539",
+            "0xc1Caf0C19A8AC28c41Fe59bA6c754e4b9bd54dE9",
+            "0x32973908FaeE0Bf825A343000fE412ebE56F802A",
+            "0x466CFcD0525189b573E794F554b8A751279213Ac",
+            "0x6bE69b2A9B153737887CfcdCa7781eD1511C7e36",
+            "0xd4e4078ca3495DE5B1d4dB434BEbc5a986197782",
+            "0x226Bf5293692610692E2C996C9875C914d2A7f73",
+            "0x4B61413D4392c806E6d0fF5Ee91E6073C21d6430",
+            "0x9401518f4EBBA857BAA879D9f76E1Cc8b31ed197",
+            "0x80336Ad7A747236ef41F47ed2C7641828a480BAA",
+            "0x33FD426905F149f8376e227d0C9D3340AaD17aF1",
+            "0x36d30B3b85255473D27dd0F7fD8F35e36a9d6F06",
+            "0xc3f733ca98E0daD0386979Eb96fb1722A1A05E69",
+            "0x2a378c8D96e7d994FB9bEc6adb7C6AF2fe772c3b",
+            "0x497a9A79e82e6fC0FF10a16f6F75e6fcd5aE65a8",
+            "0x09233d553058c2F42ba751C87816a8E9FaE7Ef10",
+            "0xEf0182dc0574cd5874494a120750FD222FdB909a",
+            "0x7E6Bc952d4b4bD814853301bEe48E99891424de0",
+            "0x4BB33f6E69fd62cf3abbcC6F1F43b94A5D572C2B",
+            "0xD78b76Fcc33cd416dA9d3D42f72649a23D7AC647",
+            "0xCa7cA7BcC765F77339bE2d648BA53ce9c8a262bD",
+            "0x12d2D1beD91c24f878F37E66bd829Ce7197e4d14",
+            "0x942BC2d3e7a589FE5bd4A5C6eF9727DFd82F5C8a",
+            "0xc8adFb4D437357D0A656D4e62fd9a6D22e401aa0",
+            "0x0b4B2bA334f476C8F41bFe52A428D6891755554d",
+            "0xB5C747561a185A146f83cFff25BdfD2455b31fF4",
+            "0x1B829B926a14634d36625e60165c0770C09D02b2",
+            "0x099689220846644F87D1137665CDED7BF3422747",
+            "0xbad6186E92002E312078b5a1dAfd5ddf63d3f731",
+            "0x701A038aF4Bd0fc9b69A829DdcB2f61185a49568",
+            "0xaaD35C2DadbE77f97301617D82e661776c891Fa9",
+            "0x14e0a1F310E2B7E321c91f58847e98b8C802f6eF",
+            "0x361A5881f18b968422E9258cB7c1FA53FF4cdD38",
+            "0xe21EBCD28d37A67757B9Bc7b290f4C4928A430b1",
+            "0x8ff1523091c9517BC328223D50b52Ef450200339",
+            "0x5be99338289909d6dbBC57bb791140Ef85cCbCAB",
+            "0x87E738a3d5E5345d6212D8982205A564289e6324",
+            "0x1485297e942ce64E0870EcE60179dFda34b4C625",
+            "0x6FD053BfF10512d743Fa36C859e49351a4920df6",
+            "0x3Acce66cD37518A6d77d9ea3039E00B3A2955460",
+            "0x31d45de84fdE2fB36575085e05754a4932DD5170",
+            "0x469823c7B84264D1BAfBcD6010e9cdf1cac305a3",
+            "0x236672Ed575E1e479b8E101AEeb920F32361f6F9",
+            "0x97597002980134beA46250Aa0510C9B90d87A587",
+            "0x1981CC36b59cffdd24B01CC5d698daa75e367e04",
+            "0xeB3a9A839dFeEaf71db1B4eD6a8ae0cCB171b227",
+            "0x3a5051566b2241285BE871f650C445A88A970edd",
+            "0x94638Cbf3c54c1f956a5F05cBC0F9aFb6822020d",
+            "0xf497253C2bB7644ebb99e4d9ECC104aE7a79187A",
+            "0x2d33Bfe1c867346543Ac245396DFc6c3EBc8534F",
+            "0x248139aFB8d3A2e16154FbE4Fb528A3a214fd8E7",
+            "0xe2e27b49e405f6c25796167B2500C195F972eBac",
+            "0xF1268733C6FB05EF6bE9cF23d24436Dcd6E0B35E",
+            "0x659A4BdaAaCc62d2bd9Cb18225D9C89b5B697A5A",
+            "0x4f89Cd0CAE1e54D98db6a80150a824a533502EEa",
+            "0xB9951B43802dCF3ef5b14567cb17adF367ed1c0F",
+            "0x8d609Bd201bEaea7DccbfbD9c22851e23Da68691",
+            "0xECDD2F733bD20E56865750eBcE33f17Da0bEE461",
+            "0xc6ec80029CD2aa4B0021cEb11248C07b25D2DE34",
+            "0x1D20A51F088492A0f1C57f047A9e30c9aB5C07Ea",
+            "0x1b79c7832ed9358E024F9e46E9c8b6f56633691B",
+            "0x9Bf252f97891b907F002F2887EfF9246e3054080",
+            "0x177EF8787CEb5D4596b6f011df08C86eb84380dC",
+            "0xCcDF1373040D9Ca4B5BE1392d1945C1DaE4a862c",
+            "0x8CB05890B7A640341069fB65DD4e070367f4D2E6",
+            "0x3DB5463A9e2d04334192C6f2DD4B72DeF4751A61",
+            "0x9df8Aa7C681f33E442A0d57B838555da863504f3",
+            "0x9eEAeCBE2884AA7e82f450E3Fc174F30Fc2a8de3",
+            "0xf472bfd59A68E9BFa56A354DC8599611C86bD3ad",
+            "0x2931B181Ae9Dc8F8109eC41C42480933F411ef94",
+            "0xE3234e57ac38890a9136247EAdFE1860316Ff6ab",
+            "0xE6d48bF4ee912235398b96E16Db6F310c21e82CB",
+            "0x06012c8cf97BEaD5deAe237070F9587f8E7A266d",
+            "0x716039AB9Ce2780e35450B86Dc6420f22460C380",
+            "0x7e3Ef31186D1BEc0D3f35aD701D065743B84C790",
+            "0x85f740958906b317de6ed79663012859067E745B",
+            "0x35471f47c3C0BC5FC75025b97A19ECDDe00F78f8",
+            "0xC9677Cd8e9652F1b1aaDd3429769b0Ef8D7A0425",
+            "0x534D37C630b7e4d2A6C1E064F3a2632739e9EE04",
+            "0x82F5eF9dDC3D231962Ba57A9c2eBb307Dc8d26c2",
+            "0x34b4Df75a17f8B3a6Eff6bBA477d39D701f5e92c",
+            "0x3A2096754Df385553C4252E5A82DC862e64169Bb",
+            "0x51f0c1938b0E67CaFC7a6fC8eB6EdD7FDBe002bC",
+            "0xC8BcbE0E8ae36D8f9238cd320ef6dE88784B1734",
+            "0x5180db8F5c931aaE63c74266b211F580155ecac8",
+            "0x63FA29Fec10C997851CCd2466Dad20E51B17C8aF",
+            "0x4addcA4c07a5e9a6b4973094D03AD5aAE7735E5b",
+            "0x8a1BbEf259B00cEd668A8c69e50D92619C672176",
+            "0x670D4DD2e6BADFBbD372D0d37E06cd2852754a04",
+            "0x3702f4C46785BbD947d59A2516ac1ea30F2BAbF2",
+            "0x740c178e10662bBb050BDE257bFA318dEfE3cabC",
+            "0x8d4100897447d173289560BC85c5C432Be4f44E4",
+            "0xC7dF86762ba83f2a6197e1Ff9Bb40ae0f696B9E6",
+            "0xbe6e3669464E7dB1e1528212F0BfF5039461CB82",
+            "0xc71a726D390Bf02b4Af8920c0820970310D0F367",
+            "0x0322F6f11A94CFB1b5B6E95E059d8DEB2bf17D6A",
+            "0x4cd0ea8b1bDb5ab9249d96cCF3d8A0d3aDa2Bc76",
+            "0xbEA8123277142dE42571f1fAc045225a1D347977",
+            "0x7f7685b4CC34BD19E2B712D8a89f34D219E76c35",
+            "0x45DB714f24f5A313569c41683047f1d49e78Ba07",
+            "0x32dDbb0fC65BB53E1f7D6Dc1c2a713e9A695B75b",
+            "0x8Ca5209d8CCe34b0de91C2C4b4B14F20AFf8BA23",
+            "0x7cBa74d0B16C8E18a9e48D3B7404D7739bb24F23",
+            "0xEDc3AD89f7b0963fe23D714B34185713706B815b",
+            "0x2118fA9369b9a52fB6Bf8cF3fd392643d55a53B4",
+            "0x684E4ED51D350b4d76A3a07864dF572D24e6dC4c",
+            "0x0B22fE0a2995C5389AC093400e52471DCa8BB48a",
+            "0xd8a5d498ab43Ed060cb6629b97a19e3e4276dD9f",
+            "0xbD275ce24f32d6cE4e9d9519C55ABe9Bc0ed7fCf",
+            "0xD692cEd124A474f051f9744a301C26D1017B3D54",
+            "0xcE25E60A89F200B1fA40f6c313047FFe386992c3",
+            "0x78d61C684A992b0289Bbfe58Aaa2659F667907f8",
+            "0xA74aE2c6FCa0CEdbAef30A8CEEF834B247186bcF",
+            "0x3aBEDBA3052845CE3f57818032BFA747CDED3fca",
+            "0x39D3230c84EFCB5559D22F499151934476B5c16d",
+            "0xD4d871419714B778eBec2E22C7c53572b573706e",
+            "0x40Cf6a63C35B6886421988871F6b74cC86309940",
+            "0x5DF340b5D1618c543aC81837dA1C2d2B17b3B5d8",
+            "0x8Cd8155e1af6AD31dd9Eec2cEd37e04145aCFCb3",
+            "0x95784F7b5c8849b0104EAf5D13d6341d8CC40750",
+            "0x64b6b4142d4D78E49D53430C1d3939F2317f9085",
+            "0x1FEC856e25F757FeD06eB90548B0224E91095738",
+            "0x9d418C2Cae665D877F909a725402EbD3A0742844",
+            "0xA302F0d51A365B18e86c291056dC265a73F19419",
+            "0x18cD9fDa7d584401D04E30bf73FB0013EfE65bb0",
+            "0x59Ad67e9c6a84e602BC73B3A606F731CC6dF210d",
+            "0x9C8fF314C9Bc7F6e59A9d9225Fb22946427eDC03",
+            "0xDBCab7A768EA9a00B2fFA5A2eB387cAD609E2114",
+            "0xe5E771bC685c5a89710131919C616c361ff001c6",
+            "0x77640cf3F89A4F1B5CA3A1e5c87f3F5B12ebf87e",
+            "0x0825F050E9B021A0E9de8CB1fb10b6C9F41e834C",
+            "0x98a0227E99E7AF0f1f0D51746211a245c3B859c2",
+            "0x46FdfCb3Cd89A1C54D36EE83a4ADC184747B40D9",
+            "0x343f999eAACdFa1f201fb8e43ebb35c99D9aE0c1",
+            "0xC1ad47aeb274157E24A5f01B5857830aeF962843",
+            "0x6fC355D4e0EE44b292E50878F49798ff755A5bbC",
+            "0x3F4a885ED8d9cDF10f3349357E3b243F3695b24A",
+            "0xc5e55e4Bd5Fef12831b5a666fc9e391538ACdc45",
+            "0x4BE3223f8708Ca6b30D1E8b8926cF281EC83E770",
+            "0x40fB1c0f6f73B9fc5a81574FF39d27e0Ba06b17b",
+            "0x87084ec881d5A15C918057F326790dB177D218F2",
+            "0x9F9c171aFdE4cc6bBF6d38aE4012c83633653B85",
+            "0x369156da04B6F313b532F7aE08E661e402B1C2F2",
+            "0xBA627f3d081cc97ac0eDc40591eda7053AC63532",
+            "0x454cBC099079DC38b145E37e982e524AF3279c44",
+            "0x950b9476a4de757BB134483029AC4Ec17E739e3A"
+
+
+
+
+        ];
+
+			const options = {
+				method: 'GET',
+				headers: {
+					accept: 'application/json'
+				}
+			};
+
+			/******************************************* Mapping for endpoint *****************************************/
+			Promise.all(communityAddresses.map(address => {
+				const url = `https://eth-mainnet.g.alchemy.com/nft/v2/${apiKey}/isHolderOfCollection?wallet=${walletAddress}&contractAddress=${address}`;
+				return fetchWithRetry(url, options).then(response => response.json());
+			}))
+			.then(responses => {
+				/******************************************* Store Response(boolean) *****************************************/
+				const isHolder = responses.some(response => response.isHolderOfCollection);
+				if (isHolder) {
+					/******************************************* Routing to Dashboard - Button text update II *****************************************/
+					connectButton.innerText = 'Access Granted';
+					console.log("User is a holder of at least one collection");
+					// Create a new XMLHttpRequest object
+					var xhr = new XMLHttpRequest();
+					// Prepare the AJAX request
+					xhr.open('POST', Wo_Ajax_Requests_File() + '?f=register_wallet', true);
+					// Define success and failure handlers
+					xhr.onload = function() {
+						if (xhr.status >= 200 && xhr.status < 400) {
+							var response = xhr.responseText;
+							if (isJson(response) === true) {
+								const responseJSON = JSON.parse(response);
+								if (responseJSON.errors) {
+									alert(responseJSON.errors[0]);
+								} else {
+									window.location.href = responseJSON.location;
+								}
+							} else {
+								window.location.href = "http:\/\/localhost\/BlokZoo\/";
+							}
+						} else {
+							console.log('Error:', xhr.status);
+						}
+					};
+					// Data to be sent
+					var data = {
+						name: 'John Doe',
+						email: 'johndoe@example.com'
+					};
+					var jsonData = JSON.stringify(data);
+					var formdata = new FormData();
+					formdata.append("wallet", accounts[0]);
+					formdata.append("username", accounts[0]);
+					formdata.append("email", accounts[0] + '@metamask.com');
+					formdata.append("password", 'User@MetaMask');
+					formdata.append("confirm_password", 'User@MetaMask');
+					formdata.append("gender", 'Male');
+					formdata.append("accept_terms", accounts[0]);
+					xhr.send(formdata);
+				} else {
+					/******************************************* No Routing - Button text update III *****************************************/
+					connectButton.innerText = 'Not Whitelisted';
+					console.log("User is not a holder of any collection");
+				}
+			})
+			.catch(err => console.error(err));
+		} catch (error) {
+			console.error("Error connecting to wallet:", error);
+		}
+	}
+
+	function isJson($string = "") {
+		try {
+			JSON.parse($string);
+			return true;
+		} catch (error) {
+			return false;
+		}
+	}
+</script>
+
+<script>
+$(document).on('click', '#night_mode_toggle', function(event) {
+  mode = $(this).attr('data-mode');
+  if (mode == 'night') {
+      $('head').append('<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo $wo['update_cache']; ?>" id="night-mode-css">');
+      $('#night_mode_toggle').attr('data-mode', 'day');
+      $(this).addClass('night');
+	  $(this).removeClass('day');
+	  replaceLogos('night');
+  } else {
+  		replaceLogos('day');
+      $('#night-mode-css').remove();
+      $('#night_mode_toggle').attr('data-mode', 'night');
+      $(this).removeClass('night');
+	  $(this).addClass('day');
+  }
+  $.post(Wo_Ajax_Requests_File() + '?mode=' + mode);
+});
+
+
+
+   async function getAccount() {
+      const accounts = await window.ethereum.request({
+            method: 'eth_requestAccounts'
+         })
+         .catch((err) => {
+            if (err.code === 4001) {
+               // EIP-1193 userRejectedRequest error
+               // If this happens, the user rejected the connection request.
+               console.log('Please connect to MetaMask.');
+            } else {
+               console.error(err);
+            }
+         });
+      const account = accounts[0];
+      showAccount.innerHTML = account;
+   }
+
+   function isJson($string = "") {
+      try {
+         JSON.parse($string);
+         return true;
+      } catch (error) {
+         return false;
+      }
+   }
+</script>
